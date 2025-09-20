@@ -1,0 +1,561 @@
+#!/usr/bin/env node
+
+/**
+ * After Dark Systems CLI v1.0
+ * Enterprise management tool for the After Dark entertainment ecosystem
+ * 
+ * Manages: API Gateway, Admin Panel, Login Service, AEIMS Integration,
+ * Domain Management, User Authentication, Service Monitoring
+ */
+
+const { Command } = require('commander');
+const chalk = require('chalk');
+const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
+const { spawn, exec } = require('child_process');
+const AEIMSClient = require('../subdomains/admin/lib/aeims-client');
+
+const program = new Command();
+
+// CLI Configuration
+const CLI_VERSION = '1.0.0';
+const BASE_DIR = path.dirname(__dirname);
+const CONFIG_FILE = path.join(BASE_DIR, '.afterdark-config.json');
+
+// Service URLs
+const SERVICES = {
+    api: 'http://localhost:3002',
+    admin: 'http://localhost:3003', 
+    login: 'http://localhost:3004',
+    aeims: 'http://localhost:3000'
+};
+
+// Utility functions
+const log = {
+    info: (msg) => console.log(chalk.blue('ℹ'), msg),
+    success: (msg) => console.log(chalk.green('✅'), msg),
+    error: (msg) => console.log(chalk.red('❌'), msg),
+    warn: (msg) => console.log(chalk.yellow('⚠️'), msg),
+    title: (msg) => console.log(chalk.bold.magenta('🌙 ' + msg))
+};
+
+// Configuration management
+function loadConfig() {
+    try {
+        if (fs.existsSync(CONFIG_FILE)) {
+            return JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
+        }
+    } catch (error) {
+        log.warn('Config file corrupted, using defaults');
+    }
+    return {
+        services: SERVICES,
+        aeims: { url: 'http://localhost:3000', apiKey: null },
+        user: null
+    };
+}
+
+function saveConfig(config) {
+    try {
+        fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2));
+    } catch (error) {
+        log.error('Failed to save config: ' + error.message);
+    }
+}
+
+// API helper
+async function apiCall(url, options = {}) {
+    try {
+        const response = await axios({
+            url,
+            timeout: 5000,
+            ...options
+        });
+        return response.data;
+    } catch (error) {
+        throw new Error(`API call failed: ${error.message}`);
+    }
+}
+
+// Service management commands
+program
+    .name('afterdark')
+    .description('After Dark Systems CLI - Enterprise Entertainment Management')
+    .version(CLI_VERSION);
+
+// Service Status Commands
+program
+    .command('status')
+    .description('Check status of all After Dark services')
+    .option('-v, --verbose', 'Show detailed status information')
+    .action(async (options) => {
+        log.title('After Dark Systems Status Check');
+        
+        const config = loadConfig();
+        const results = {};
+        
+        for (const [service, url] of Object.entries(config.services)) {
+            try {
+                const startTime = Date.now();
+                const response = await apiCall(url + '/health');
+                const responseTime = Date.now() - startTime;
+                
+                results[service] = {
+                    status: 'online',
+                    responseTime: responseTime + 'ms',
+                    data: response
+                };
+                
+                log.success(`${service.toUpperCase()}: Online (${responseTime}ms)`);
+                
+                if (options.verbose && response) {
+                    console.log('  ', JSON.stringify(response, null, 2));
+                }
+            } catch (error) {
+                results[service] = { status: 'offline', error: error.message };
+                log.error(`${service.toUpperCase()}: Offline - ${error.message}`);
+            }
+        }
+        
+        // Summary
+        const online = Object.values(results).filter(r => r.status === 'online').length;
+        const total = Object.keys(results).length;
+        
+        console.log('\n' + chalk.bold(`Services: ${online}/${total} online`));
+        if (online === total) {
+            log.success('All After Dark services are operational! 🚀');
+        } else {
+            log.warn(`${total - online} service(s) need attention`);
+        }
+    });
+
+// Service Start/Stop Commands
+program
+    .command('start [service]')
+    .description('Start After Dark services (api, admin, login, or all)')
+    .action((service) => {
+        log.title('Starting After Dark Services');
+        
+        if (!service || service === 'all') {
+            log.info('Starting all services...');
+            startService('api', 3002, 'subdomains/api');
+            startService('admin', 3003, 'subdomains/admin'); 
+            startService('login', 3004, 'subdomains/login');
+        } else {
+            const serviceMap = {
+                api: { port: 3002, dir: 'subdomains/api' },
+                admin: { port: 3003, dir: 'subdomains/admin' },
+                login: { port: 3004, dir: 'subdomains/login' }
+            };
+            
+            if (serviceMap[service]) {
+                startService(service, serviceMap[service].port, serviceMap[service].dir);
+            } else {
+                log.error(`Unknown service: ${service}`);
+                log.info('Available services: api, admin, login');
+            }
+        }
+    });
+
+function startService(name, port, dir) {
+    const servicePath = path.join(BASE_DIR, dir);
+    const serverFile = path.join(servicePath, 'server.js');
+    
+    if (!fs.existsSync(serverFile)) {
+        log.error(`Service ${name} not found at ${serverFile}`);
+        return;
+    }
+    
+    log.info(`Starting ${name} service on port ${port}...`);
+    
+    const child = spawn('node', ['server.js'], {
+        cwd: servicePath,
+        detached: true,
+        stdio: 'ignore',
+        env: { ...process.env, PORT: port }
+    });
+    
+    child.unref();
+    log.success(`${name} service started (PID: ${child.pid})`);
+}
+
+program
+    .command('stop [service]')
+    .description('Stop After Dark services')
+    .action((service) => {
+        log.title('Stopping After Dark Services');
+        
+        if (!service || service === 'all') {
+            [3002, 3003, 3004].forEach(port => stopServiceByPort(port));
+        } else {
+            const portMap = { api: 3002, admin: 3003, login: 3004 };
+            if (portMap[service]) {
+                stopServiceByPort(portMap[service]);
+            } else {
+                log.error(`Unknown service: ${service}`);
+            }
+        }
+    });
+
+function stopServiceByPort(port) {
+    exec(`lsof -ti:${port} | xargs kill -9`, (error) => {
+        if (error) {
+            log.warn(`No process found on port ${port}`);
+        } else {
+            log.success(`Stopped service on port ${port}`);
+        }
+    });
+}
+
+// Handle missing commander dependency gracefully
+if (typeof Command === 'undefined') {
+    console.log('Installing required dependencies...');
+    exec('npm install commander chalk axios', { cwd: __dirname }, (error) => {
+        if (error) {
+            console.error('Failed to install dependencies. Please run: npm install commander chalk axios');
+            process.exit(1);
+        } else {
+            console.log('Dependencies installed. Please run the command again.');
+        }
+    });
+    return;
+}
+
+// AEIMS Integration Commands
+program
+    .command('domains')
+    .description('List all domains from AEIMS')
+    .option('-v, --verbose', 'Show detailed domain information')
+    .action(async (options) => {
+        log.title('AEIMS Domain Management');
+        
+        try {
+            const config = loadConfig();
+            const aeims = new AEIMSClient(config.aeims.url, config.aeims.apiKey);
+            
+            const response = await aeims.getDomains();
+            
+            if (response.success) {
+                log.success(`Found ${response.total} domains (AEIMS v${response.version || '3.0.1'})`);
+                
+                response.domains.forEach(domain => {
+                    const status = domain.active ? chalk.green('✓ Active') : chalk.red('✗ Inactive');
+                    console.log(`  ${domain.domain} - ${status}`);
+                    
+                    if (options.verbose) {
+                        console.log(`    Domain ID: ${domain.domain_id || 'N/A'}`);
+                        if (domain.features) console.log(`    Features: ${JSON.stringify(domain.features)}`);
+                        if (domain.theme) console.log(`    Theme: ${JSON.stringify(domain.theme)}`);
+                    }
+                });
+            } else {
+                log.error('Failed to fetch domains from AEIMS');
+            }
+        } catch (error) {
+            log.error(`AEIMS connection failed: ${error.message}`);
+            log.info('Make sure AEIMS is running and accessible');
+        }
+    });
+
+program
+    .command('domain-status <domain>')
+    .description('Get status of a specific domain')
+    .action(async (domain) => {
+        log.title(`Domain Status: ${domain}`);
+        
+        try {
+            const config = loadConfig();
+            const aeims = new AEIMSClient(config.aeims.url, config.aeims.apiKey);
+            
+            const response = await aeims.getDomainStatus(domain);
+            
+            if (response.success) {
+                const status = response.data.active ? chalk.green('Active') : chalk.red('Inactive');
+                console.log(`Status: ${status}`);
+                console.log(`Domain ID: ${response.data.domain_id}`);
+                console.log(`SSL Enabled: ${response.data.ssl_enabled ? 'Yes' : 'No'}`);
+                
+                if (response.data.features) {
+                    console.log('Features:', JSON.stringify(response.data.features, null, 2));
+                }
+            } else {
+                log.error(`Domain not found: ${domain}`);
+            }
+        } catch (error) {
+            log.error(`Failed to get domain status: ${error.message}`);
+        }
+    });
+
+program
+    .command('toggle-domain <domain>')
+    .description('Toggle domain active status')
+    .action(async (domain) => {
+        log.title(`Toggling Domain: ${domain}`);
+        
+        try {
+            const config = loadConfig();
+            const aeims = new AEIMSClient(config.aeims.url, config.aeims.apiKey);
+            
+            const response = await aeims.toggleDomain(domain);
+            
+            if (response.success) {
+                const status = response.data.active ? 'activated' : 'deactivated';
+                log.success(`Domain ${domain} ${status}`);
+            } else {
+                log.error(`Failed to toggle domain: ${response.error}`);
+            }
+        } catch (error) {
+            log.error(`Toggle failed: ${error.message}`);
+        }
+    });
+
+program
+    .command('multisite-stats')
+    .description('Get multisite statistics from AEIMS')
+    .action(async () => {
+        log.title('Multisite Statistics');
+        
+        try {
+            const config = loadConfig();
+            const aeims = new AEIMSClient(config.aeims.url, config.aeims.apiKey);
+            
+            const response = await aeims.getMultisiteStats();
+            
+            if (response.success) {
+                console.log(`Total Sites: ${response.data.totalSites}`);
+                console.log(`Active Sites: ${response.data.activeSites}`);
+                console.log(`Total Users: ${response.data.totalUsers}`);
+                console.log(`Total Revenue: $${response.data.totalRevenue}`);
+            } else {
+                log.error('Failed to get multisite stats');
+            }
+        } catch (error) {
+            log.error(`Stats request failed: ${error.message}`);
+        }
+    });
+
+// User Management Commands
+program
+    .command('users <domain>')
+    .description('List users for a specific domain')
+    .option('-l, --limit <number>', 'Limit number of results', '50')
+    .action(async (domain, options) => {
+        log.title(`Users for ${domain}`);
+        
+        try {
+            const config = loadConfig();
+            const aeims = new AEIMSClient(config.aeims.url, config.aeims.apiKey);
+            
+            const response = await aeims.getSiteUsers(domain, options.limit);
+            
+            if (response.success) {
+                log.success(`Found ${response.data.length} users`);
+                response.data.forEach(user => {
+                    console.log(`  ${user.username} - ${user.email} (${user.status})`);
+                });
+            } else {
+                log.error(`Failed to get users for ${domain}`);
+            }
+        } catch (error) {
+            log.error(`User request failed: ${error.message}`);
+        }
+    });
+
+program
+    .command('operators <domain>')
+    .description('List operators for a specific domain')
+    .option('-l, --limit <number>', 'Limit number of results', '50')
+    .action(async (domain, options) => {
+        log.title(`Operators for ${domain}`);
+        
+        try {
+            const config = loadConfig();
+            const aeims = new AEIMSClient(config.aeims.url, config.aeims.apiKey);
+            
+            const response = await aeims.getSiteOperators(domain, options.limit);
+            
+            if (response.success) {
+                log.success(`Found ${response.data.length} operators`);
+                response.data.forEach(operator => {
+                    console.log(`  ${operator.username} - ${operator.role} (${operator.status})`);
+                });
+            } else {
+                log.error(`Failed to get operators for ${domain}`);
+            }
+        } catch (error) {
+            log.error(`Operator request failed: ${error.message}`);
+        }
+    });
+
+// Configuration Commands
+program
+    .command('config')
+    .description('Show current CLI configuration')
+    .action(() => {
+        log.title('After Dark CLI Configuration');
+        
+        const config = loadConfig();
+        
+        console.log('Services:');
+        Object.entries(config.services).forEach(([name, url]) => {
+            console.log(`  ${name}: ${url}`);
+        });
+        
+        console.log('\nAEIMS:');
+        console.log(`  URL: ${config.aeims.url}`);
+        console.log(`  API Key: ${config.aeims.apiKey ? 'Set' : 'Not set'}`);
+        
+        if (config.user) {
+            console.log(`\nUser: ${config.user.username} (${config.user.role})`);
+        }
+    });
+
+program
+    .command('config-set <key> <value>')
+    .description('Set configuration value')
+    .action((key, value) => {
+        log.title('Updating Configuration');
+        
+        const config = loadConfig();
+        
+        if (key.startsWith('services.')) {
+            const service = key.split('.')[1];
+            config.services[service] = value;
+        } else if (key.startsWith('aeims.')) {
+            const prop = key.split('.')[1];
+            config.aeims[prop] = value;
+        } else {
+            log.error(`Unknown config key: ${key}`);
+            return;
+        }
+        
+        saveConfig(config);
+        log.success(`Set ${key} = ${value}`);
+    });
+
+// Login/Authentication Commands
+program
+    .command('login')
+    .description('Login to After Dark services')
+    .option('-u, --username <username>', 'Username')
+    .option('-p, --password <password>', 'Password')
+    .action(async (options) => {
+        log.title('After Dark Login');
+        
+        try {
+            const config = loadConfig();
+            
+            const credentials = {
+                username: options.username || 'admin',
+                password: options.password || 'afterdark2024'
+            };
+            
+            const response = await apiCall(config.services.login + '/auth/login', {
+                method: 'POST',
+                data: credentials
+            });
+            
+            if (response.success) {
+                config.user = {
+                    username: credentials.username,
+                    role: response.user.role,
+                    token: response.token
+                };
+                
+                saveConfig(config);
+                log.success(`Logged in as ${credentials.username} (${response.user.role})`);
+            } else {
+                log.error('Login failed: Invalid credentials');
+            }
+        } catch (error) {
+            log.error(`Login failed: ${error.message}`);
+        }
+    });
+
+program
+    .command('logout')
+    .description('Logout from After Dark services')
+    .action(() => {
+        log.title('After Dark Logout');
+        
+        const config = loadConfig();
+        config.user = null;
+        saveConfig(config);
+        
+        log.success('Logged out successfully');
+    });
+
+// Health Check for all services
+program
+    .command('health')
+    .description('Comprehensive health check of entire After Dark ecosystem')
+    .action(async () => {
+        log.title('After Dark Ecosystem Health Check');
+        
+        const config = loadConfig();
+        const results = {
+            services: {},
+            aeims: null,
+            overall: true
+        };
+        
+        // Check all After Dark services
+        log.info('Checking After Dark services...');
+        for (const [service, url] of Object.entries(config.services)) {
+            try {
+                const startTime = Date.now();
+                const response = await apiCall(url + '/health');
+                const responseTime = Date.now() - startTime;
+                
+                results.services[service] = {
+                    status: 'healthy',
+                    responseTime: responseTime + 'ms'
+                };
+                
+                log.success(`${service.toUpperCase()}: Healthy (${responseTime}ms)`);
+            } catch (error) {
+                results.services[service] = {
+                    status: 'unhealthy',
+                    error: error.message
+                };
+                results.overall = false;
+                log.error(`${service.toUpperCase()}: Unhealthy - ${error.message}`);
+            }
+        }
+        
+        // Check AEIMS
+        log.info('Checking AEIMS integration...');
+        try {
+            const aeims = new AEIMSClient(config.aeims.url, config.aeims.apiKey);
+            const response = await aeims.getDomains();
+            
+            if (response.success) {
+                results.aeims = {
+                    status: 'healthy',
+                    version: response.version,
+                    domains: response.total
+                };
+                log.success(`AEIMS: Healthy (v${response.version}, ${response.total} domains)`);
+            } else {
+                results.aeims = { status: 'unhealthy', error: 'Invalid response' };
+                results.overall = false;
+                log.error('AEIMS: Unhealthy - Invalid response');
+            }
+        } catch (error) {
+            results.aeims = { status: 'unhealthy', error: error.message };
+            results.overall = false;
+            log.error(`AEIMS: Unhealthy - ${error.message}`);
+        }
+        
+        // Summary
+        console.log('\n' + chalk.bold('=== Health Summary ==='));
+        if (results.overall) {
+            log.success('🎉 All systems operational! After Dark ecosystem is healthy.');
+        } else {
+            log.warn('⚠️  Some systems need attention. Check the details above.');
+        }
+    });
+
+// Parse command line arguments
+program.parse();

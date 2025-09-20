@@ -44,6 +44,8 @@ Each hosted site includes:
 
 ### CLI Management
 
+**⚠️ Important**: The AEIMS CLI is part of the **AEIMS platform repository**, not the afterdarksys.com corporate website.
+
 The AEIMS CLI provides comprehensive multisite management:
 
 #### List All Hosted Sites

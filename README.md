@@ -373,6 +373,59 @@ node api-demo.js
 
 ### Option 4: Ecosystem Dashboard
 ```bash
+# Demo the complete ecosystem
+./demo-ecosystem.sh
+# Visit http://localhost:8080 for ecosystem overview
+```
+
+### Option 5: Infrastructure Management
+```bash
+# Deploy using deployment wrapper
+./deploy.sh deploy      # Deploy entire ecosystem
+./deploy.sh status      # Check infrastructure status
+./deploy.sh logs        # View deployment logs
+./deploy.sh help        # See all available commands
+```
+
+## 🔧 Available Scripts & CLIs
+
+### AfterDark Systems Corporate Website (This Repository)
+The afterdarksys.com repository contains **demonstration and deployment scripts only**:
+
+```bash
+# Corporate ecosystem demonstration
+./demo-ecosystem.sh     # Shows ecosystem overview and business value
+
+# Infrastructure deployment (SuperDeploy integration)
+./deploy.sh deploy      # Deploy via SuperDeploy
+./deploy.sh status      # Infrastructure status
+./deploy.sh check       # Health checks
+./deploy.sh logs        # View logs
+```
+
+**⚠️ Important**: This corporate website repository does **NOT** include:
+- Native CLI for website management (it's a static site)
+- AEIMS platform management tools
+- Individual platform administration CLIs
+
+### AEIMS Platform CLI (Separate Product)
+The **AEIMS multisite platform** has its own dedicated CLI in a separate repository:
+
+```bash
+# AEIMS multisite management (separate product)
+./aeims multisite list                    # List hosted phone sex sites
+./aeims multisite create newdomain.com    # Create new site
+./aeims multisite users domain.com list   # Manage site users
+./aeims multisite stats                   # Platform analytics
+```
+
+### Platform Architecture Separation
+- **afterdarksys.com** = Corporate website + ecosystem hub (this repo)
+- **AEIMS Platform** = Phone sex site hosting platform (separate repo)
+- **Individual Platforms** = Each has own management systems
+- **API Gateway** = Revenue engine serving all platforms
+
+```bash
 # Launch the platform ecosystem dashboard
 ./demo-ecosystem.sh
 # Visit ecosystem-dashboard.html for platform overview

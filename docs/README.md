@@ -250,10 +250,20 @@ Visit `/dashboard` for real-time system monitoring:
 - Update documentation for changes
 - Follow security best practices
 
+## 🔧 CLI Architecture
+
+For detailed information about command-line interfaces across the After Dark Systems ecosystem:
+
+- **CLI Architecture Documentation**: [docs/CLI-ARCHITECTURE.md](CLI-ARCHITECTURE.md)
+- **What has CLIs**: AEIMS platform (separate repo), individual services
+- **What doesn't**: afterdarksys.com corporate website (static site)
+- **Available Scripts**: `demo-ecosystem.sh`, `deploy.sh`
+
 ## 📞 Support
 
 - **Email**: support@afterdarksys.com
 - **Documentation**: See `/docs` directory
+- **CLI Questions**: See [CLI-ARCHITECTURE.md](docs/CLI-ARCHITECTURE.md)
 - **Issues**: GitHub Issues
 - **Security**: security@afterdarksys.com
 

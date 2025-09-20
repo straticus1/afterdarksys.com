@@ -374,6 +374,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Revenue projection: $500K-5M annually from hosting services
   - Total addressable market: $50M+ adult entertainment hosting
 
+## [1.3.1] - 2025-09-20
+
+### 📋 Documentation & Architecture Clarification
+- **CLI Architecture Documentation** - Clarified CLI structure across platform ecosystem
+  - afterdarksys.com corporate website: Demo and deployment scripts only
+  - AEIMS platform: Dedicated multisite management CLI (separate product)
+  - Individual platform services: Service-specific CLIs and APIs
+  - Clear separation of concerns between corporate site and platform products
+- **Repository Structure Documentation** - Enhanced clarity on what exists where
+  - `demo-ecosystem.sh` - Corporate ecosystem demonstration script
+  - `deploy.sh` - SuperDeploy integration wrapper for infrastructure deployment
+  - No native CLI for afterdarksys.com website (static/corporate site)
+  - AEIMS CLI exists within AEIMS platform repository (separate from corporate site)
+- **Developer Guidance Updates** - Corrected documentation for developers and users
+  - Clear instructions on which repository contains which tools
+  - Proper expectations for afterdarksys.com vs. AEIMS platform capabilities
+  - Updated getting started guides with correct CLI references
+
+### 🔧 Script Enhancements
+- **Demo Script Improvements** (`demo-ecosystem.sh`) - Enhanced corporate demonstration
+  - Better ecosystem URL presentation
+  - Clearer business value proposition display
+  - Improved revenue stream documentation
+- **Deployment Script Updates** (`deploy.sh`) - Enhanced SuperDeploy integration
+  - Comprehensive status reporting for all subdomains
+  - Platform portfolio display with accurate descriptions
+  - Better error handling and user feedback
+
+### 🎯 Business Clarity
+- **Platform Separation Documentation** - Clear product boundaries
+  - afterdarksys.com = Corporate marketing website and ecosystem hub
+  - AEIMS = Standalone multisite phone sex platform product
+  - Individual platforms = Separate products with own management systems
+  - API Gateway = Revenue engine serving all platforms
+- **Technology Stack Clarification** - Proper architecture documentation
+  - Corporate website: Static HTML/CSS/JS with deployment automation
+  - AEIMS platform: Full-stack PHP application with CLI management tools
+  - Infrastructure: Terraform/Ansible deployment across AWS ECS
+  - Integration: SuperDeploy for unified deployment orchestration
+
 ## [Unreleased]
 
 ### Planned Features
@@ -386,3 +426,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Marketplace Integration** - Direct NFT marketplace integration
 - **Social Features** - Enhanced community and social interaction features
 - **API Gateway V2** - Enhanced API features and enterprise integrations
+- **AEIMS CLI Standalone Release** - Separate AEIMS CLI distribution for easier access
