@@ -76,6 +76,34 @@ POST   /api/domains/{domain}/toggle - Toggle status ($1.00/call)
 - **Custom enterprise plans** for infrastructure management
 - **Potential Revenue**: $50K-500K+ annually from domain management alone
 
+### 🏗️ Phone Sex Site Hosting Platform
+**"The Shopify for Phone Sex Sites" - Revolutionary Multi-Tenant Architecture**
+
+**Key Capabilities:**
+- **Independent User Bases** - Complete data isolation per domain
+- **Separate Operator Pools** - Site-specific models and earnings tracking  
+- **Custom Branding** - Domain-specific themes, colors, and configurations
+- **Individual Billing** - Per-site payment processing and revenue tracking
+- **Automated Deployment** - New sites ready in minutes with full infrastructure
+
+**CLI Management:**
+```bash
+./aeims multisite list                    # List all hosted sites
+./aeims multisite create newsite.com     # Deploy new phone sex site
+./aeims multisite users sexacomms.com list # Manage site-specific users
+./aeims multisite operators flirts.nyc earnings # Track operator performance  
+./aeims multisite stats                   # Platform-wide analytics
+```
+
+**Revenue Model:**
+- **Platform Hosting Fees** - $200-2000/month per hosted domain
+- **Revenue Sharing** - Percentage of site earnings (10-30%)
+- **Custom Development** - Bespoke features and integrations
+- **Enterprise Support** - White-label solutions and consultation
+- **Projected Revenue**: $500K-5M+ annually from multisite hosting
+
+**Current Status:** 12+ active phone sex sites hosted with proven scalability
+
 ### 🚀 "The Stripe for Entertainment"
 Positioning as the first comprehensive entertainment technology infrastructure provider:
 - **15+ live platforms** with battle-tested scale
@@ -153,10 +181,11 @@ afterdarksys.com/
 ## 💼 Services & Products
 
 ### 🎭 Entertainment Platform Operations
-- **AEIMS v3.0.1** - Large-scale adult entertainment platform with advanced domain management
-  - **12 Active Domains** with automated nginx configuration:
+- **AEIMS v3.0.1 Multisite Platform** - "The Shopify for Phone Sex Sites"
+  - **Revolutionary Multi-Tenant Architecture** - Independent user bases per domain
+  - **12+ Active Phone Sex Sites** with complete isolation:
     - `sexacomms.com` - Premium adult entertainment platform
-    - `flirts.nyc` - NYC-focused dating platform
+    - `flirts.nyc` - NYC-focused dating platform  
     - `nycflirts.com` - New York dating community
     - `nitetext.com` - Communication platform
     - `nitetex.com` - Alternative communication platform
@@ -167,9 +196,10 @@ afterdarksys.com/
     - `holyflirts.com` - Religious-themed dating
     - `cavern.love` - Cave-themed social platform
     - `cavernof.love` - Extended cave community
+  - **Complete Data Isolation** - Separate users, operators, billing per site
   - **Enterprise Infrastructure**: Route53 → ELB → ECS → nginx → PHP
-  - **Automated SSL Management** with Let's Encrypt integration
-  - **Real-time Domain Control** via API and admin dashboard
+  - **Automated Site Deployment** - New domains ready in minutes
+  - **Real-time Multisite Management** via web dashboard and CLI
 - **Money Paws** - Cryptocurrency pet gaming platform
 - **Purrr.love** - Cat-themed MegaVerse and virtual universe
 - **Additional cryptocurrency gaming platforms**

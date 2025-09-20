@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AEIMS Multisite Management - After Dark Systems Admin</title>
+    <style>
+        :root {
+            --primary-color: #e74c3c;
+            --secondary-color: #c0392b;
+            --accent-color: #f39c12;
+            --background-dark: #1c1c1c;
+            --text-light: #ffffff;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #3498db;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1e1e1e 0%, #2d2d30 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #bdc3c7;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            border-radius: 15px;
+            padding: 2rem;
+            border: 1px solid #34495e;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            color: #95a5a6;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .sites-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .site-card {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid #34495e;
+            transition: all 0.3s ease;
+        }
+
+        .site-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 5px 20px rgba(231, 76, 60, 0.2);
+        }
+
+        .site-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .site-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .site-domain {
+            font-size: 0.9rem;
+            color: var(--accent-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .site-status {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-active {
+            background: rgba(39, 174, 96, 0.2);
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+        }
+
+        .status-inactive {
+            background: rgba(231, 76, 60, 0.2);
+            color: var(--danger-color);
+            border: 1px solid var(--danger-color);
+        }
+
+        .site-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .site-metric {
+            text-align: center;
+        }
+
+        .site-metric-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+        .site-metric-label {
+            font-size: 0.8rem;
+            color: #95a5a6;
+            text-transform: uppercase;
+        }
+
+        .actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary-color);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-light);
+            border: 1px solid #34495e;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #95a5a6;
+        }
+
+        .error {
+            background: rgba(231, 76, 60, 0.1);
+            border: 1px solid var(--danger-color);
+            color: var(--danger-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #34495e;
+        }
+
+        .nav-tab {
+            padding: 1rem 2rem;
+            background: transparent;
+            border: none;
+            color: #95a5a6;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .revenue-chart {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .admin-container {
+                padding: 1rem;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sites-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .site-metrics {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="header">
+            <h1>🏗️ AEIMS Multisite Management</h1>
+            <p>Manage your phone sex site hosting platform - monitor users, operators, revenue, and site health across all domains</p>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('overview')">📊 Platform Overview</button>
+            <button class="nav-tab" onclick="showTab('sites')">🌐 Site Management</button>
+            <button class="nav-tab" onclick="showTab('revenue')">💰 Revenue Analytics</button>
+            <button class="nav-tab" onclick="showTab('users')">👥 User Management</button>
+        </div>
+
+        <!-- Platform Overview Tab -->
+        <div id="overview" class="tab-content active">
+            <div class="dashboard-grid">
+                <div class="card">
+                    <div class="card-title">📈 Platform Statistics</div>
+                    <div class="metric-value" id="totalSites">12</div>
+                    <div class="metric-label">Total Sites Hosted</div>
+                    <div style="margin-top: 1rem;">
+                        <div>Active Sites: <span id="activeSites" style="color: var(--success-color);">12</span></div>
+                        <div>Total Users: <span id="totalUsers" style="color: var(--info-color);">0</span></div>
+                        <div>Total Operators: <span id="totalOperators" style="color: var(--warning-color);">0</span></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">💰 Revenue Overview</div>
+                    <div class="metric-value" id="monthlyRevenue">$0.00</div>
+                    <div class="metric-label">Monthly Revenue</div>
+                    <div style="margin-top: 1rem;">
+                        <div>Total Revenue: <span id="totalRevenue" style="color: var(--success-color);">$0.00</span></div>
+                        <div>Average per Site: <span id="avgRevenue" style="color: var(--info-color);">$0.00</span></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">⚡ Platform Health</div>
+                    <div class="metric-value" style="color: var(--success-color);" id="platformStatus">Healthy</div>
+                    <div class="metric-label">Overall Status</div>
+                    <div style="margin-top: 1rem;">
+                        <div>Nginx Status: <span id="nginxStatus" style="color: var(--success-color);">Running</span></div>
+                        <div>SSL Certificates: <span id="sslStatus" style="color: var(--success-color);">Valid</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Performing Sites -->
+            <div class="card">
+                <div class="card-title">🏆 Top Performing Sites</div>
+                <div id="topSites" class="loading">Loading top sites...</div>
+            </div>
+        </div>
+
+        <!-- Site Management Tab -->
+        <div id="sites" class="tab-content">
+            <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 2rem;">
+                <h2>Site Management</h2>
+                <div class="actions">
+                    <button class="btn btn-primary" onclick="createNewSite()">➕ Create New Site</button>
+                    <button class="btn btn-secondary" onclick="refreshSites()">🔄 Refresh</button>
+                </div>
+            </div>
+            
+            <div id="sitesContainer" class="sites-grid">
+                <div class="loading">Loading sites...</div>
+            </div>
+        </div>
+
+        <!-- Revenue Analytics Tab -->
+        <div id="revenue" class="tab-content">
+            <div class="card">
+                <div class="card-title">📊 Revenue Analytics</div>
+                <div id="revenueAnalytics" class="loading">Loading revenue data...</div>
+            </div>
+        </div>
+
+        <!-- User Management Tab -->
+        <div id="users" class="tab-content">
+            <div class="card">
+                <div class="card-title">👥 User Management</div>
+                <div id="userManagement" class="loading">Loading user data...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include AEIMS Client -->
+    <script src="../lib/aeims-client.js"></script>
+    
+    <script>
+        // Initialize AEIMS client
+        const aeims = new AEIMSClient('http://localhost:8000'); // Replace with actual AEIMS API URL
+        
+        // Tab management
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            // Load tab-specific data
+            loadTabData(tabName);
+        }
+
+        // Load data based on active tab
+        async function loadTabData(tabName) {
+            switch(tabName) {
+                case 'overview':
+                    await loadPlatformOverview();
+                    break;
+                case 'sites':
+                    await loadSites();
+                    break;
+                case 'revenue':
+                    await loadRevenueAnalytics();
+                    break;
+                case 'users':
+                    await loadUserManagement();
+                    break;
+            }
+        }
+
+        // Load platform overview
+        async function loadPlatformOverview() {
+            try {
+                const stats = await aeims.getMultisiteStats();
+                
+                if (stats.success) {
+                    const data = stats.data;
+                    document.getElementById('totalSites').textContent = data.total_sites || 0;
+                    document.getElementById('activeSites').textContent = data.active_sites || 0;
+                    document.getElementById('totalUsers').textContent = data.total_users?.toLocaleString() || '0';
+                    document.getElementById('totalOperators').textContent = data.total_operators?.toLocaleString() || '0';
+                    document.getElementById('monthlyRevenue').textContent = '$' + (data.monthly_revenue || 0).toFixed(2);
+                    document.getElementById('totalRevenue').textContent = '$' + (data.total_revenue || 0).toFixed(2);
+                    
+                    const avgRevenue = data.total_sites > 0 ? (data.monthly_revenue / data.total_sites) : 0;
+                    document.getElementById('avgRevenue').textContent = '$' + avgRevenue.toFixed(2);
+                    
+                    // Load top sites
+                    loadTopSites(data.top_sites || []);
+                }
+            } catch (error) {
+                console.error('Failed to load platform overview:', error);
+                document.getElementById('topSites').innerHTML = '<div class="error">Failed to load platform data</div>';
+            }
+        }
+
+        // Load top performing sites
+        function loadTopSites(topSites) {
+            const container = document.getElementById('topSites');
+            
+            if (topSites.length === 0) {
+                container.innerHTML = '<p style="color: #95a5a6;">No revenue data available yet.</p>';
+                return;
+            }
+            
+            const html = topSites.map((site, index) => `
+                <div style="display: flex; justify-content: between; align-items: center; padding: 1rem; background: rgba(52, 73, 94, 0.3); border-radius: 8px; margin-bottom: 0.5rem;">
+                    <div>
+                        <span style="color: var(--accent-color); font-weight: bold;">#${index + 1}</span>
+                        <span style="margin-left: 1rem; color: var(--text-light);">${site.domain}</span>
+                    </div>
+                    <div style="color: var(--success-color); font-weight: 600;">
+                        $${(site.monthly_revenue || 0).toFixed(2)}/month
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = html;
+        }
+
+        // Load sites
+        async function loadSites() {
+            try {
+                const response = await aeims.getDomains();
+                
+                if (response.success && response.domains) {
+                    const sitesHtml = Object.entries(response.domains).map(([key, domain]) => 
+                        createSiteCard(domain)
+                    ).join('');
+                    
+                    document.getElementById('sitesContainer').innerHTML = sitesHtml;
+                } else {
+                    document.getElementById('sitesContainer').innerHTML = '<div class="error">Failed to load sites</div>';
+                }
+            } catch (error) {
+                console.error('Failed to load sites:', error);
+                document.getElementById('sitesContainer').innerHTML = '<div class="error">Failed to load sites</div>';
+            }
+        }
+
+        // Create site card HTML
+        function createSiteCard(site) {
+            const statusClass = site.active ? 'status-active' : 'status-inactive';
+            const statusText = site.active ? 'Active' : 'Inactive';
+            
+            return `
+                <div class="site-card">
+                    <div class="site-header">
+                        <div>
+                            <div class="site-domain">${site.domain}</div>
+                            <div class="site-name">${site.multisite_config?.site_name || site.domain}</div>
+                        </div>
+                        <div class="site-status ${statusClass}">${statusText}</div>
+                    </div>
+                    <div class="site-metrics">
+                        <div class="site-metric">
+                            <div class="site-metric-value" id="users-${site.domain}">-</div>
+                            <div class="site-metric-label">Users</div>
+                        </div>
+                        <div class="site-metric">
+                            <div class="site-metric-value" id="operators-${site.domain}">-</div>
+                            <div class="site-metric-label">Operators</div>
+                        </div>
+                        <div class="site-metric">
+                            <div class="site-metric-value" id="revenue-${site.domain}">$0</div>
+                            <div class="site-metric-label">Monthly</div>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn btn-primary" onclick="manageSite('${site.domain}')">⚙️ Manage</button>
+                        <button class="btn btn-secondary" onclick="viewSiteStats('${site.domain}')">📊 Stats</button>
+                        <button class="btn ${site.active ? 'btn-warning' : 'btn-success'}" onclick="toggleSite('${site.domain}')">
+                            ${site.active ? '⏸️ Disable' : '▶️ Enable'}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Site management functions
+        async function manageSite(domain) {
+            alert(`Opening management interface for ${domain} - Feature coming soon!`);
+        }
+
+        async function viewSiteStats(domain) {
+            try {
+                // Load detailed stats for this site
+                const users = await aeims.getSiteUsers(domain, 10);
+                const operators = await aeims.getSiteOperators(domain, 10);
+                const revenue = await aeims.getSiteRevenue(domain);
+                
+                // Show in modal or new page
+                alert(`Stats for ${domain}:\nUsers: ${users.data?.length || 0}\nOperators: ${operators.data?.length || 0}\nRevenue: $${revenue.data?.monthly_revenue || 0}`);
+            } catch (error) {
+                alert(`Failed to load stats for ${domain}: ${error.message}`);
+            }
+        }
+
+        async function toggleSite(domain) {
+            try {
+                const result = await aeims.toggleDomain(domain);
+                if (result.success) {
+                    await loadSites(); // Refresh the sites display
+                } else {
+                    alert(`Failed to toggle ${domain}: ${result.error}`);
+                }
+            } catch (error) {
+                alert(`Error toggling ${domain}: ${error.message}`);
+            }
+        }
+
+        async function createNewSite() {
+            const domain = prompt('Enter new domain name (e.g., newsite.com):');
+            if (!domain) return;
+            
+            const siteName = prompt('Enter site name:', domain.replace(/\.(com|love|nyc|live)/i, ''));
+            if (!siteName) return;
+            
+            try {
+                const result = await aeims.createNewSite({
+                    domain: domain,
+                    site_name: siteName,
+                    active: true
+                });
+                
+                if (result.success) {
+                    alert(`Site ${domain} created successfully!`);
+                    await loadSites();
+                } else {
+                    alert(`Failed to create site: ${result.error}`);
+                }
+            } catch (error) {
+                alert(`Error creating site: ${error.message}`);
+            }
+        }
+
+        async function refreshSites() {
+            document.getElementById('sitesContainer').innerHTML = '<div class="loading">Refreshing sites...</div>';
+            await loadSites();
+        }
+
+        // Revenue analytics
+        async function loadRevenueAnalytics() {
+            document.getElementById('revenueAnalytics').innerHTML = '<div class="loading">Loading revenue analytics...</div>';
+            
+            try {
+                const stats = await aeims.getMultisiteStats();
+                if (stats.success) {
+                    const revenueHtml = `
+                        <div class="dashboard-grid">
+                            <div class="metric-card">
+                                <div class="metric-value">$${(stats.data.monthly_revenue || 0).toFixed(2)}</div>
+                                <div class="metric-label">This Month</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value">$${(stats.data.total_revenue || 0).toFixed(2)}</div>
+                                <div class="metric-label">All Time</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value">$${stats.data.total_sites > 0 ? (stats.data.monthly_revenue / stats.data.total_sites).toFixed(2) : '0.00'}</div>
+                                <div class="metric-label">Average per Site</div>
+                            </div>
+                        </div>
+                        <p style="margin-top: 2rem; color: #95a5a6;">Detailed analytics dashboard coming soon...</p>
+                    `;
+                    document.getElementById('revenueAnalytics').innerHTML = revenueHtml;
+                }
+            } catch (error) {
+                document.getElementById('revenueAnalytics').innerHTML = '<div class="error">Failed to load revenue data</div>';
+            }
+        }
+
+        // User management
+        async function loadUserManagement() {
+            document.getElementById('userManagement').innerHTML = '<div class="loading">Loading user management...</div>';
+            
+            setTimeout(() => {
+                document.getElementById('userManagement').innerHTML = '<p style="color: #95a5a6;">Cross-site user management dashboard coming soon...</p>';
+            }, 1000);
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPlatformOverview();
+        });
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            const activeTab = document.querySelector('.nav-tab.active').textContent;
+            if (activeTab.includes('Platform Overview')) {
+                loadPlatformOverview();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
