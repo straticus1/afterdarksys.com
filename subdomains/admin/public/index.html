@@ -298,6 +298,7 @@
                 <button class="btn" onclick="manageBilling()">💳 Manage Billing</button>
                 <button class="btn" onclick="checkStatus()">🔍 System Status</button>
                 <button class="btn" onclick="viewDocs()">📖 Documentation</button>
+                <button class="btn" onclick="testAEIMSDomains()">🌐 Test AEIMS Domains</button>
             </div>
         </div>
     </div>
@@ -330,7 +331,7 @@
         function loadDashboardData() {
             // Simulate API call for now
             const platforms = [
-                { name: 'AEIMS', domain: 'aeims.com', category: 'Adult Entertainment', status: 'active', revenue: 'high' },
+                { name: 'AEIMS', domain: 'aeims.app', category: 'Adult Entertainment', status: 'active', revenue: 'high' },
                 { name: 'Undateable.me', domain: 'undateable.me', category: 'Dating Safety', status: 'active', revenue: 'medium' },
                 { name: 'OutOfWork.life', domain: 'outofwork.life', category: 'Job Search', status: 'active', revenue: 'medium' },
                 { name: 'PoliticalMemes.xyz', domain: 'politicalmemes.xyz', category: 'Political AI', status: 'active', revenue: 'high' },
@@ -417,8 +418,84 @@
             window.open('https://docs.afterdarksys.com', '_blank');
         }
 
+        async function testAEIMSDomains() {
+            console.log('Testing AEIMS domains endpoint...');
+            
+            // Try to get token from localStorage (from login)
+            let token = localStorage.getItem('afterdark_token');
+            
+            if (!token) {
+                // Generate admin token for testing
+                token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzU4MzU0OTY2LCJleHAiOjE3NTg0NDEzNjZ9.3wtkX74N89Jx53abGKw5N06x07ClwCsD2jUNUwzOPBw';
+            }
+            
+            try {
+                const response = await fetch('/api/aeims/domains', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const result = await response.json();
+                console.log('AEIMS Domains response:', result);
+                
+                if (response.ok) {
+                    alert(`AEIMS Domains Test Successful!\n\nDomains found: ${JSON.stringify(result, null, 2)}`);
+                } else {
+                    alert(`AEIMS Domains Test Failed!\n\nError: ${result.error || 'Unknown error'}\n\nThis is expected if AEIMS service is not running.`);
+                }
+            } catch (error) {
+                console.error('AEIMS test error:', error);
+                alert(`AEIMS Domains Test Error!\n\nError: ${error.message}\n\nCheck browser console for details.`);
+            }
+        }
+
+        function checkAuth() {
+            const token = localStorage.getItem('afterdark_token');
+            const user = localStorage.getItem('afterdark_user');
+            
+            if (!token || !user) {
+                console.log('No authentication found');
+                // Show login prompt instead of immediate redirect
+                const statusIndicator = document.querySelector('.status-indicator');
+                statusIndicator.innerHTML = `
+                    <div class="status-dot" style="background: #ffd700;"></div>
+                    <span><a href="http://localhost:3004" style="color: #ffd700;">Login Required</a></span>
+                `;
+                // Still return false to prevent loading dashboard data without auth
+                return false;
+            }
+            
+            try {
+                const userData = JSON.parse(user);
+                console.log('Authenticated as:', userData.username);
+                
+                // Update header with user info
+                const statusIndicator = document.querySelector('.status-indicator');
+                statusIndicator.innerHTML = `
+                    <div class="status-dot"></div>
+                    <span>Logged in as: ${userData.username}</span>
+                `;
+                
+                return true;
+            } catch (e) {
+                console.error('Error parsing user data:', e);
+                localStorage.removeItem('afterdark_token');
+                localStorage.removeItem('afterdark_user');
+                window.location.href = 'http://localhost:3004';
+                return false;
+            }
+        }
+
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {
+            // Check authentication first
+            if (!checkAuth()) {
+                return; // Will redirect to login if not authenticated
+            }
+            
             loadDashboardData();
             // initializeWebSocket(); // Uncomment when WebSocket is fully implemented
             

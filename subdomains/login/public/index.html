@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>After Dark Systems - Central Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .login-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .logo h1 {
+            color: #333;
+            font-size: 1.8rem;
+            font-weight: 300;
+        }
+        
+        .logo span {
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            width: 100%;
+            padding: 0.8rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-bottom: 1rem;
+        }
+        
+        button:hover {
+            background: #5a6fd8;
+        }
+        
+        .divider {
+            text-align: center;
+            margin: 1rem 0;
+            color: #999;
+        }
+        
+        .test-accounts {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-top: 1rem;
+        }
+        
+        .test-accounts h3 {
+            color: #333;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .test-account {
+            background: white;
+            padding: 0.5rem;
+            border-radius: 3px;
+            margin: 0.5rem 0;
+            font-size: 0.8rem;
+            border-left: 3px solid #667eea;
+        }
+        
+        .message {
+            padding: 0.8rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .token-display {
+            background: #e9ecef;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-top: 1rem;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1><span>After Dark</span> Systems</h1>
+            <p>Central Authentication</p>
+        </div>
+        
+        <div id="message" class="message"></div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="platform">Platform:</label>
+                <select id="platform" name="platform" required>
+                    <option value="">Select Platform</option>
+                    <option value="aeims">AEIMS (Adult Entertainment)</option>
+                    <option value="smokeoutnyc">SmokeoutNYC (Cannabis Gaming)</option>
+                    <option value="veribits">VeriBits.com (Trust Verification)</option>
+                    <option value="politicalmemes">PoliticalMemes.xyz (Political)</option>
+                    <option value="ninelives">9Lives.xyz (Crypto Risk)</option>
+                    <option value="nerdycupid">NerdyCupid.com (Dating API)</option>
+                    <option value="outofwork">OutOfWork.life (Job Search)</option>
+                    <option value="undateable">Undateable.me (Dating Safety)</option>
+                    <option value="nitetext">NiteText (Communication)</option>
+                </select>
+            </div>
+            
+            <button type="submit">Login</button>
+        </form>
+        
+        <div class="divider">— OR —</div>
+        
+        <button id="adminQuickLogin">Quick Admin Login</button>
+        <button id="clientQuickLogin">Quick Client Login</button>
+        
+        <div class="test-accounts">
+            <h3>🧪 Test Accounts:</h3>
+            
+            <div class="test-account">
+                <strong>Admin Account:</strong><br>
+                Email: admin@afterdarksys.com<br>
+                Password: AdminPass123!<br>
+                Platform: aeims
+            </div>
+            
+            <div class="test-account">
+                <strong>Client Account:</strong><br>
+                Email: client@testcompany.com<br>
+                Password: ClientPass123!<br>
+                Platform: aeims
+            </div>
+        </div>
+        
+        <div id="tokenDisplay" class="token-display" style="display: none;">
+            <strong>JWT Token:</strong><br>
+            <span id="tokenValue"></span>
+        </div>
+    </div>
+
+    <script src="login.js"></script>
+</body>
+</html>

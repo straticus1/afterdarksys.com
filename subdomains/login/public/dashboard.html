@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>After Dark Systems - User Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .card h3 {
+            color: #ffd700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s ease;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+        }
+        
+        .btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .btn-logout {
+            background: #dc3545;
+        }
+        
+        .btn-logout:hover {
+            background: #c82333;
+        }
+        
+        .platform-list {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .platform-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .status-active {
+            background: #28a745;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+        
+        .token-display {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            word-break: break-all;
+            margin: 1rem 0;
+        }
+        
+        .api-test {
+            margin-top: 1rem;
+        }
+        
+        .result-display {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+            font-family: monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">🌙 After Dark Systems</div>
+        <div class="user-info">
+            <span id="userWelcome">Welcome!</span>
+            <button class="btn btn-logout" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="grid">
+            <div class="card">
+                <h3>👤 Account Information</h3>
+                <div id="accountInfo">
+                    <p><strong>Email:</strong> <span id="userEmail">-</span></p>
+                    <p><strong>Username:</strong> <span id="userName">-</span></p>
+                    <p><strong>Platforms:</strong> <span id="userPlatforms">-</span></p>
+                    <p><strong>Account Type:</strong> <span id="userType">Standard User</span></p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🔑 Authentication Token</h3>
+                <p>Your JWT token for API access:</p>
+                <div class="token-display" id="tokenDisplay">
+                    Loading...
+                </div>
+                <button class="btn" onclick="copyToken()">📋 Copy Token</button>
+                <button class="btn" onclick="refreshToken()">🔄 Refresh Token</button>
+            </div>
+
+            <div class="card">
+                <h3>🌐 Available Platforms</h3>
+                <div class="platform-list" id="platformList">
+                    <div class="platform-item">
+                        <div>
+                            <strong>AEIMS</strong><br>
+                            <small>Adult Entertainment Management</small>
+                        </div>
+                        <span class="status-active">Active</span>
+                    </div>
+                    <div class="platform-item">
+                        <div>
+                            <strong>API Gateway</strong><br>
+                            <small>Unified API Access</small>
+                        </div>
+                        <span class="status-active">Active</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🧪 API Testing</h3>
+                <p>Test API endpoints with your authentication:</p>
+                <div class="api-test">
+                    <button class="btn" onclick="testAPIGateway()">🚀 Test API Gateway</button>
+                    <button class="btn" onclick="testDatingSafety()">💕 Test Dating Safety</button>
+                    <button class="btn" onclick="testCryptoRisk()">₿ Test Crypto Risk</button>
+                </div>
+                <div class="result-display" id="apiResults" style="display: none;">
+                    Test results will appear here...
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📊 Quick Links</h3>
+                <button class="btn" onclick="openAPIGateway()">🌐 API Gateway</button>
+                <button class="btn" onclick="openDocs()">📖 Documentation</button>
+                <button class="btn" onclick="openSupport()">💬 Support</button>
+            </div>
+
+            <div class="card">
+                <h3>📈 Usage Statistics</h3>
+                <p>Coming soon: View your API usage, request counts, and billing information.</p>
+                <div style="margin-top: 1rem;">
+                    <p>🔹 API Requests Today: <strong>0</strong></p>
+                    <p>🔹 Monthly Usage: <strong>0 / 1000</strong></p>
+                    <p>🔹 Account Tier: <strong>Free</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let userToken = '';
+        let userData = {};
+
+        function initDashboard() {
+            // Check authentication
+            const token = localStorage.getItem('afterdark_token');
+            const user = localStorage.getItem('afterdark_user');
+            
+            if (!token || !user) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            try {
+                userData = JSON.parse(user);
+                userToken = token;
+                
+                // Update UI with user data
+                document.getElementById('userWelcome').textContent = `Welcome, ${userData.username}!`;
+                document.getElementById('userEmail').textContent = userData.email;
+                document.getElementById('userName').textContent = userData.username;
+                document.getElementById('userPlatforms').textContent = userData.platforms.join(', ');
+                document.getElementById('tokenDisplay').textContent = token;
+                
+                if (userData.username === 'administrator' || userData.email.includes('admin')) {
+                    document.getElementById('userType').textContent = 'Administrator';
+                }
+                
+                console.log('Dashboard initialized for user:', userData.username);
+            } catch (e) {
+                console.error('Error parsing user data:', e);
+                logout();
+            }
+        }
+
+        function copyToken() {
+            navigator.clipboard.writeText(userToken).then(() => {
+                alert('Token copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy token:', err);
+                alert('Failed to copy token. Please copy manually.');
+            });
+        }
+
+        function refreshToken() {
+            // In a real implementation, this would refresh the token
+            alert('Token refresh not implemented in demo. Current token is still valid.');
+        }
+
+        async function testAPIGateway() {
+            const resultsDiv = document.getElementById('apiResults');
+            resultsDiv.style.display = 'block';
+            resultsDiv.textContent = 'Testing API Gateway health endpoint...';
+            
+            try {
+                const response = await fetch('http://localhost:3002/health');
+                const result = await response.json();
+                
+                resultsDiv.textContent = `✅ API Gateway Test Successful!\n\n${JSON.stringify(result, null, 2)}`;
+            } catch (error) {
+                resultsDiv.textContent = `❌ API Gateway Test Failed!\n\nError: ${error.message}`;
+            }
+        }
+
+        async function testDatingSafety() {
+            const resultsDiv = document.getElementById('apiResults');
+            resultsDiv.style.display = 'block';
+            resultsDiv.textContent = 'Testing Dating Safety API...';
+            
+            try {
+                const response = await fetch('http://localhost:3002/v1/dating/safety', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${userToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'test@example.com',
+                        name: 'Test User'
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    resultsDiv.textContent = `✅ Dating Safety API Test Successful!\n\n${JSON.stringify(result, null, 2)}`;
+                } else {
+                    resultsDiv.textContent = `❌ Dating Safety API Test Failed!\n\n${JSON.stringify(result, null, 2)}`;
+                }
+            } catch (error) {
+                resultsDiv.textContent = `❌ Dating Safety API Test Error!\n\nError: ${error.message}`;
+            }
+        }
+
+        async function testCryptoRisk() {
+            const resultsDiv = document.getElementById('apiResults');
+            resultsDiv.style.display = 'block';
+            resultsDiv.textContent = 'Testing Crypto Risk API...';
+            
+            try {
+                const response = await fetch('http://localhost:3002/v1/crypto/risk', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${userToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        token_symbol: 'BTC',
+                        contract_address: '0x1234567890123456789012345678901234567890'
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    resultsDiv.textContent = `✅ Crypto Risk API Test Successful!\n\n${JSON.stringify(result, null, 2)}`;
+                } else {
+                    resultsDiv.textContent = `❌ Crypto Risk API Test Failed!\n\n${JSON.stringify(result, null, 2)}`;
+                }
+            } catch (error) {
+                resultsDiv.textContent = `❌ Crypto Risk API Test Error!\n\nError: ${error.message}`;
+            }
+        }
+
+        function openAPIGateway() {
+            window.open('http://localhost:3002', '_blank');
+        }
+
+        function openDocs() {
+            window.open('http://localhost:3002/docs', '_blank');
+        }
+
+        function openSupport() {
+            alert('Support: email support@afterdarksys.com or visit our documentation.');
+        }
+
+        function logout() {
+            localStorage.removeItem('afterdark_token');
+            localStorage.removeItem('afterdark_user');
+            window.location.href = 'index.html';
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', initDashboard);
+    </script>
+</body>
+</html>

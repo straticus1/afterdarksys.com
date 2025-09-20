@@ -51,7 +51,7 @@ all:
     # Platform Portfolio (for reference)
     platforms:
       - name: "AEIMS"
-        domain: "aeims.com"
+        domain: "aeims.app"
         category: "Adult Entertainment"
         revenue_tier: "high"
         

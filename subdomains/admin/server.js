@@ -30,7 +30,7 @@ app.use(express.json());
 app.use(express.static('public'));
 
 const PLATFORMS = [
-  { name: 'AEIMS', domain: 'aeims.com', category: 'Adult Entertainment', status: 'active', revenue: 'high' },
+  { name: 'AEIMS', domain: 'aeims.app', category: 'Adult Entertainment', status: 'active', revenue: 'high' },
   { name: 'Undateable.me', domain: 'undateable.me', category: 'Dating Safety', status: 'active', revenue: 'medium' },
   { name: 'OutOfWork.life', domain: 'outofwork.life', category: 'Job Search', status: 'active', revenue: 'medium' },
   { name: 'PoliticalMemes.xyz', domain: 'politicalmemes.xyz', category: 'Political AI', status: 'active', revenue: 'high' },
@@ -74,7 +74,7 @@ function authenticateToken(req, res, next) {
     return res.status(401).json({ error: 'Access token required' });
   }
 
-  jwt.verify(token, process.env.JWT_SECRET || 'afterdark-admin-secret', (err, user) => {
+  jwt.verify(token, process.env.JWT_SECRET || 'afterdark-entertainment-systems-2024', (err, user) => {
     if (err) {
       return res.status(403).json({ error: 'Invalid token' });
     }

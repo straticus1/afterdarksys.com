@@ -41,7 +41,7 @@ app.get('/', (req, res) => {
             'Cannabis Data': 'smokeoutnyc',
             'Scientific Dating': 'nerdycupid.com',
             'Communication': 'nitetext',
-            'Adult Entertainment': 'aeims'
+            'Adult Entertainment': 'aeims.app'
         },
         pricing: API_PRICING,
         demo_endpoints: {
