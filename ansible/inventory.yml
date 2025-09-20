@@ -1,0 +1,115 @@
+---
+# After Dark Systems - Ansible Inventory
+# Entertainment Technology Ecosystem Infrastructure
+
+all:
+  hosts:
+    localhost:
+      ansible_connection: local
+      ansible_python_interpreter: "{{ ansible_playbook_python }}"
+      
+  vars:
+    # AWS Configuration
+    aws_region: us-east-1
+    aws_profile: default  # Override with your AWS profile if needed
+    
+    # Project Configuration
+    project_name: afterdarksys
+    environment: production
+    domain_name: afterdarksys.com
+    
+    # Docker Configuration
+    docker_registry: afterdarksys
+    docker_tag: latest
+    build_images: true
+    
+    # Deployment Configuration
+    ecs_desired_count: 2
+    ecs_min_capacity: 1
+    ecs_max_capacity: 10
+    
+    # Feature Flags
+    setup_monitoring: true
+    enable_logging: true
+    enable_metrics: true
+    enable_auto_scaling: true
+    
+    # Subdomain Configuration
+    subdomains:
+      - login
+      - api
+      - admin
+      - docs
+      - billing
+      - status
+      - analytics
+      - oss
+      - sip
+      - webhooks
+      - cdn
+      
+    # Platform Portfolio (for reference)
+    platforms:
+      - name: "AEIMS"
+        domain: "aeims.com"
+        category: "Adult Entertainment"
+        revenue_tier: "high"
+        
+      - name: "Undateable.me"
+        domain: "undateable.me"
+        category: "Dating Safety"
+        revenue_tier: "medium"
+        
+      - name: "OutOfWork.life"
+        domain: "outofwork.life"
+        category: "Job Search"
+        revenue_tier: "medium"
+        
+      - name: "PoliticalMemes.xyz"
+        domain: "politicalmemes.xyz"
+        category: "Political Engagement"
+        revenue_tier: "high"
+        
+      - name: "9Lives.xyz"
+        domain: "9lives.xyz"
+        category: "Crypto Risk Management"
+        revenue_tier: "high"
+        
+      - name: "NerdyCupid.com"
+        domain: "nerdycupid.com"
+        category: "Scientific Dating"
+        revenue_tier: "medium"
+        
+      - name: "VeriBits.com"
+        domain: "veribits.com"
+        category: "Trust Verification"
+        revenue_tier: "medium"
+        
+      - name: "SmokeOut.NYC"
+        domain: "smokeout.nyc"
+        category: "Cannabis Gaming"
+        revenue_tier: "high"
+        
+    # Service Health Check Configuration
+    health_check:
+      timeout: 30
+      retries: 3
+      interval: 10
+      
+    # Monitoring Configuration
+    cloudwatch:
+      log_retention: 7
+      enable_container_insights: true
+      
+    # Security Configuration
+    ssl_policy: "ELBSecurityPolicy-TLS-1-2-2017-01"
+    enable_waf: false  # Can be enabled for production
+    
+    # Resource Tags
+    common_tags:
+      Project: "AfterDarkSystems"
+      Environment: "{{ environment }}"
+      ManagedBy: "SuperDeploy"
+      Owner: "AfterDarkSystems"
+      CostCenter: "Infrastructure"
+      BusinessUnit: "EntertainmentEcosystem"

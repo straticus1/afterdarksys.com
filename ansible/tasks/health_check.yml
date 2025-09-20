@@ -1,0 +1,74 @@
+---
+# Health Check Tasks
+# Verifies service health and availability
+
+- name: "Wait for {{ service.name }} service to be stable"
+  ecs_service_info:
+    cluster: "{{ tf_outputs.ecs_cluster_name.value }}"
+    service: "{{ project_name }}-{{ service.name }}"
+    region: "{{ aws_region }}"
+  register: service_info
+  until: 
+    - service_info.services | length > 0
+    - service_info.services[0].status == "ACTIVE"
+    - service_info.services[0].runningCount >= 1
+    - service_info.services[0].pendingCount == 0
+  retries: "{{ health_check.retries | default(10) }}"
+  delay: "{{ health_check.interval | default(30) }}"
+  
+- name: "Check target group health for {{ service.name }}"
+  elb_target_group_info:
+    target_group_arns:
+      - "{{ tf_outputs.target_groups.value[service.name | replace('-', '_')] }}"
+    region: "{{ aws_region }}"
+  register: target_group_info
+  
+- name: "Wait for healthy targets in {{ service.name }} target group"
+  elb_target_info:
+    target_group_arn: "{{ tf_outputs.target_groups.value[service.name | replace('-', '_')] }}"
+    region: "{{ aws_region }}"
+  register: target_health
+  until: target_health.targets | selectattr('target_health.state', 'equalto', 'healthy') | list | length >= 1
+  retries: "{{ health_check.retries | default(10) }}"
+  delay: "{{ health_check.interval | default(30) }}"
+  
+- name: "Test service endpoint for {{ service.name }}"
+  uri:
+    url: "{{ service_endpoint }}{{ service.health_path }}"
+    method: GET
+    timeout: "{{ health_check.timeout | default(30) }}"
+    status_code: 200
+  vars:
+    service_endpoint: "https://{{ 'login.' + domain_name if service.name == 'login-service' else 'api.' + domain_name if service.name == 'api-gateway' else domain_name }}"
+  register: endpoint_test
+  retries: "{{ health_check.retries | default(3) }}"
+  delay: "{{ health_check.interval | default(10) }}"
+  ignore_errors: true
+  
+- name: "Display health check results for {{ service.name }}"
+  debug:
+    msg: |
+      Health Check Results for {{ service.name }}:
+      ==========================================
+      
+      ECS Service Status: {{ service_info.services[0].status }}
+      Running Tasks: {{ service_info.services[0].runningCount }}
+      Healthy Targets: {{ target_health.targets | selectattr('target_health.state', 'equalto', 'healthy') | list | length }}
+      
+      {% if endpoint_test.status is defined %}
+      Endpoint Test: {% if endpoint_test.status == 200 %}✅ PASSED{% else %}❌ FAILED{% endif %}
+      Response Code: {{ endpoint_test.status | default('N/A') }}
+      {% else %}
+      Endpoint Test: ⏳ PENDING (DNS propagation may take time)
+      {% endif %}
+      
+      Service URL: {{ service_endpoint }}{{ service.health_path }}
+  vars:
+    service_endpoint: "https://{{ 'login.' + domain_name if service.name == 'login-service' else 'api.' + domain_name if service.name == 'api-gateway' else domain_name }}"
+    
+- name: "Log deployment success for {{ service.name }}"
+  lineinfile:
+    path: "{{ playbook_dir }}/../logs/deployment.log"
+    line: "{{ ansible_date_time.iso8601 }} - {{ service.name }} - DEPLOYED - Tasks: {{ service_info.services[0].runningCount }}/{{ service_info.services[0].desiredCount }}"
+    create: true
+  when: service_info.services[0].runningCount == service_info.services[0].desiredCount

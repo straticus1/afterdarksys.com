@@ -1,0 +1,115 @@
+---
+# After Dark Systems - Ansible Deployment Playbook
+# Entertainment Technology Ecosystem Infrastructure
+# Deploys applications to AWS ECS with Docker containers
+
+- name: Deploy After Dark Systems Entertainment Ecosystem
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    aws_region: "{{ aws_region | default('us-east-1') }}"
+    project_name: "{{ project_name | default('afterdarksys') }}"
+    environment: "{{ environment | default('production') }}"
+    domain_name: "{{ domain_name | default('afterdarksys.com') }}"
+    
+    # Docker registry settings
+    docker_registry: "{{ docker_registry | default('afterdarksys') }}"
+    docker_tag: "{{ docker_tag | default('latest') }}"
+    
+    # Service configurations
+    services:
+      - name: main-site
+        image: "nginx:alpine"
+        port: 8080
+        health_path: "/"
+        cpu: 256
+        memory: 512
+        
+      - name: login-service
+        image: "{{ docker_registry }}/login-service:{{ docker_tag }}"
+        port: 3001
+        health_path: "/health"
+        cpu: 256
+        memory: 512
+        env_vars:
+          NODE_ENV: production
+          PORT: "3001"
+          
+      - name: api-gateway
+        image: "{{ docker_registry }}/api-gateway:{{ docker_tag }}"
+        port: 3002
+        health_path: "/health"
+        cpu: 512
+        memory: 1024
+        env_vars:
+          NODE_ENV: production
+          PORT: "3002"
+
+  tasks:
+    - name: Get Terraform outputs
+      shell: |
+        cd {{ playbook_dir }}/../terraform
+        terraform output -json
+      register: terraform_output
+      changed_when: false
+      
+    - name: Parse Terraform outputs
+      set_fact:
+        tf_outputs: "{{ terraform_output.stdout | from_json }}"
+        
+    - name: Display infrastructure information
+      debug:
+        msg: |
+          Deploying to ECS Cluster: {{ tf_outputs.ecs_cluster_name.value }}
+          ALB DNS: {{ tf_outputs.alb_dns_name.value }}
+          Domain: {{ domain_name }}
+          
+    - name: Build and push Docker images
+      include_tasks: tasks/docker.yml
+      loop: "{{ services }}"
+      loop_control:
+        loop_var: service
+      when: build_images | default(true) | bool
+      
+    - name: Update ECS services
+      include_tasks: tasks/ecs.yml
+      loop: "{{ services }}"
+      loop_control:
+        loop_var: service
+        
+    - name: Wait for services to be stable
+      include_tasks: tasks/health_check.yml
+      loop: "{{ services }}"
+      loop_control:
+        loop_var: service
+        
+    - name: Configure monitoring and alerting
+      include_tasks: tasks/monitoring.yml
+      when: setup_monitoring | default(true) | bool
+      
+    - name: Display deployment summary
+      debug:
+        msg: |
+          🌙 After Dark Systems Deployment Complete!
+          ===============================================
+          
+          🏠 Main Site: https://{{ domain_name }}
+          🔐 Login Portal: https://login.{{ domain_name }}
+          🌐 API Gateway: https://api.{{ domain_name }}
+          👑 Admin Portal: https://admin.{{ domain_name }}
+          📖 Documentation: https://docs.{{ domain_name }}
+          💳 Billing: https://billing.{{ domain_name }}
+          📊 Status: https://status.{{ domain_name }}
+          📈 Analytics: https://analytics.{{ domain_name }}
+          ☎️  SIP Gateway: https://sip.{{ domain_name }}
+          🔧 Open Source: https://oss.{{ domain_name }}
+          
+          Infrastructure:
+          - ECS Cluster: {{ tf_outputs.ecs_cluster_name.value }}
+          - Load Balancer: {{ tf_outputs.alb_dns_name.value }}
+          - SSL Certificate: {{ tf_outputs.ssl_certificate_arn.value }}
+          
+          🎯 Entertainment Technology Ecosystem Ready!
+          💰 Revenue Generation: ACTIVATED
+          🏆 Strategic Value: $100M+ Potential

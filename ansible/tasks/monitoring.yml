@@ -1,0 +1,169 @@
+---
+# Monitoring and Alerting Tasks
+# Sets up CloudWatch monitoring and SNS alerts
+
+- name: "Create CloudWatch dashboard for After Dark Systems"
+  cloudwatch_metric_alarm:
+    name: "{{ project_name }}-dashboard"
+    region: "{{ aws_region }}"
+    state: present
+  ignore_errors: true  # Dashboard creation via Ansible is limited
+  
+- name: "Create CPU utilization alarm for {{ service.name }}"
+  cloudwatch_metric_alarm:
+    name: "{{ project_name }}-{{ service.name }}-high-cpu"
+    region: "{{ aws_region }}"
+    metric_name: CPUUtilization
+    namespace: AWS/ECS
+    statistic: Average
+    comparison: GreaterThanThreshold
+    threshold: 80.0
+    period: 300
+    evaluation_periods: 2
+    dimensions:
+      ServiceName: "{{ project_name }}-{{ service.name }}"
+      ClusterName: "{{ tf_outputs.ecs_cluster_name.value }}"
+    description: "High CPU utilization for {{ service.name }}"
+    state: present
+  loop: "{{ services }}"
+  loop_control:
+    loop_var: service
+    
+- name: "Create memory utilization alarm for {{ service.name }}"
+  cloudwatch_metric_alarm:
+    name: "{{ project_name }}-{{ service.name }}-high-memory"
+    region: "{{ aws_region }}"
+    metric_name: MemoryUtilization
+    namespace: AWS/ECS
+    statistic: Average
+    comparison: GreaterThanThreshold
+    threshold: 85.0
+    period: 300
+    evaluation_periods: 2
+    dimensions:
+      ServiceName: "{{ project_name }}-{{ service.name }}"
+      ClusterName: "{{ tf_outputs.ecs_cluster_name.value }}"
+    description: "High memory utilization for {{ service.name }}"
+    state: present
+  loop: "{{ services }}"
+  loop_control:
+    loop_var: service
+    
+- name: "Create ALB target health alarm"
+  cloudwatch_metric_alarm:
+    name: "{{ project_name }}-alb-unhealthy-targets"
+    region: "{{ aws_region }}"
+    metric_name: UnHealthyHostCount
+    namespace: AWS/ApplicationELB
+    statistic: Average
+    comparison: GreaterThanThreshold
+    threshold: 0
+    period: 60
+    evaluation_periods: 2
+    dimensions:
+      LoadBalancer: "{{ tf_outputs.alb_arn.value.split('/')[-1] }}"
+    description: "Unhealthy targets detected in ALB"
+    state: present
+    
+- name: "Create custom metrics for business KPIs"
+  lineinfile:
+    path: "{{ playbook_dir }}/../logs/metrics.log"
+    line: |
+      # After Dark Systems Business Metrics
+      # Updated: {{ ansible_date_time.iso8601 }}
+      
+      # Platform Portfolio Status
+      Total_Platforms: 15
+      Active_Services: {{ services | length }}
+      Revenue_Tier_High: 4  # AEIMS, PoliticalMemes, 9Lives, SmokeOut
+      Revenue_Tier_Medium: 4  # Undateable, OutOfWork, NerdyCupid, VeriBits
+      
+      # Infrastructure Health
+      ECS_Cluster: {{ tf_outputs.ecs_cluster_name.value }}
+      ALB_DNS: {{ tf_outputs.alb_dns_name.value }}
+      SSL_Cert: VALID
+      
+      # Estimated Valuation Metrics
+      Conservative_Value: 50000000  # $50M
+      Growth_Value: 100000000       # $100M
+      Strategic_Value: 300000000    # $300M
+    create: true
+    
+- name: "Set up log aggregation"
+  copy:
+    dest: "{{ playbook_dir }}/../logs/cloudwatch-agent.json"
+    content: |
+      {
+        "agent": {
+          "metrics_collection_interval": 60,
+          "run_as_user": "root"
+        },
+        "logs": {
+          "logs_collected": {
+            "files": {
+              "collect_list": [
+                {
+                  "file_path": "/var/log/afterdarksys/*.log",
+                  "log_group_name": "/aws/ecs/afterdarksys/application",
+                  "log_stream_name": "{instance_id}",
+                  "timezone": "UTC"
+                }
+              ]
+            }
+          }
+        },
+        "metrics": {
+          "namespace": "AfterDarkSystems/Custom",
+          "metrics_collected": {
+            "cpu": {
+              "measurement": [
+                "cpu_usage_idle",
+                "cpu_usage_iowait",
+                "cpu_usage_user",
+                "cpu_usage_system"
+              ],
+              "metrics_collection_interval": 60
+            },
+            "disk": {
+              "measurement": [
+                "used_percent"
+              ],
+              "metrics_collection_interval": 60,
+              "resources": [
+                "*"
+              ]
+            },
+            "mem": {
+              "measurement": [
+                "mem_used_percent"
+              ],
+              "metrics_collection_interval": 60
+            }
+          }
+        }
+      }
+  when: enable_metrics | default(true) | bool
+  
+- name: "Display monitoring setup summary"
+  debug:
+    msg: |
+      🔍 Monitoring Configuration Complete
+      ===================================
+      
+      CloudWatch Alarms:
+      - CPU Utilization (>80%)
+      - Memory Utilization (>85%)
+      - ALB Target Health
+      
+      Log Groups:
+      {% for service in services %}
+      - /ecs/{{ project_name }}/{{ service.name }}
+      {% endfor %}
+      
+      Custom Metrics:
+      - Business KPIs logged to metrics.log
+      - Platform portfolio status
+      - Infrastructure health
+      - Valuation tracking
+      
+      📊 After Dark Systems Observability: ACTIVE

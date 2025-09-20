@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>After Dark Systems - SIP Gateway</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/dashboard.css" rel="stylesheet">
+</head>
+<body class="bg-dark text-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-black border-bottom border-secondary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-moon-stars"></i>
+                After Dark Systems - SIP Gateway
+            </a>
+            <div class="navbar-nav ms-auto">
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle"></i>
+                        <span id="userEmail">Not logged in</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end bg-dark border-secondary">
+                        <li><a class="dropdown-item text-light" href="#" onclick="logout()">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark border-secondary">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">
+                        <i class="bi bi-shield-lock"></i> 
+                        SIP Gateway Login
+                    </h5>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control bg-dark text-light border-secondary" id="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control bg-dark text-light border-secondary" id="password" required>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-box-arrow-in-right"></i> Login
+                            </button>
+                        </div>
+                    </form>
+                    <div id="loginError" class="alert alert-danger mt-3 d-none"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container-fluid mt-3">
+        <!-- System Status Alert -->
+        <div id="systemAlert" class="alert alert-warning d-none">
+            <i class="bi bi-exclamation-triangle"></i>
+            <span id="systemAlertText"></span>
+        </div>
+
+        <!-- Dashboard Overview -->
+        <div class="row">
+            <!-- Active Calls Card -->
+            <div class="col-md-3 mb-3">
+                <div class="card bg-dark border-secondary">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title text-primary">Active Calls</h6>
+                                <h3 id="activeCallsCount">0</h3>
+                            </div>
+                            <i class="bi bi-telephone h1 text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Health Card -->
+            <div class="col-md-3 mb-3">
+                <div class="card bg-dark border-secondary">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title text-success">System Health</h6>
+                                <h5 id="systemHealth">Unknown</h5>
+                            </div>
+                            <i class="bi bi-heart-pulse h1 text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Call Files Card -->
+            <div class="col-md-3 mb-3">
+                <div class="card bg-dark border-secondary">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title text-warning">Call Files</h6>
+                                <small class="text-muted">Pending: <span id="pendingCallFiles">0</span></small>
+                                <h5>Total: <span id="totalCallFiles">0</span></h5>
+                            </div>
+                            <i class="bi bi-file-earmark-text h1 text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 24h Analytics Card -->
+            <div class="col-md-3 mb-3">
+                <div class="card bg-dark border-secondary">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title text-info">24h Analytics</h6>
+                                <small class="text-muted">Calls: <span id="callsLast24h">0</span></small>
+                                <h6>Avg Duration: <span id="avgDuration">0s</span></h6>
+                            </div>
+                            <i class="bi bi-graph-up h1 text-info"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Tabs -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card bg-dark border-secondary">
+                    <div class="card-header border-secondary">
+                        <ul class="nav nav-tabs card-header-tabs" id="dashboardTabs">
+                            <li class="nav-item">
+                                <a class="nav-link active bg-dark text-light border-secondary" id="overview-tab" data-bs-toggle="tab" href="#overview">
+                                    <i class="bi bi-speedometer2"></i> Overview
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link bg-dark text-light border-secondary" id="calls-tab" data-bs-toggle="tab" href="#calls">
+                                    <i class="bi bi-telephone"></i> Active Calls
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link bg-dark text-light border-secondary" id="control-tab" data-bs-toggle="tab" href="#control">
+                                    <i class="bi bi-gear"></i> Call Control
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link bg-dark text-light border-secondary" id="logs-tab" data-bs-toggle="tab" href="#logs">
+                                    <i class="bi bi-journal-text"></i> Real-time Events
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content" id="dashboardTabContent">
+                            <!-- Overview Tab -->
+                            <div class="tab-pane fade show active" id="overview" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6>FreeSWITCH Status</h6>
+                                        <div id="freeswitchStatus" class="mb-3">
+                                            <div class="spinner-border spinner-border-sm" role="status"></div>
+                                            Loading...
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6>AEIMS Connection</h6>
+                                        <div id="aeimsStatus" class="mb-3">
+                                            <div class="spinner-border spinner-border-sm" role="status"></div>
+                                            Loading...
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Active Calls Tab -->
+                            <div class="tab-pane fade" id="calls" role="tabpanel">
+                                <div class="table-responsive">
+                                    <table class="table table-dark table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Call ID</th>
+                                                <th>From</th>
+                                                <th>To</th>
+                                                <th>Duration</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="activeCallsTable">
+                                            <tr>
+                                                <td colspan="6" class="text-center">No active calls</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Call Control Tab -->
+                            <div class="tab-pane fade" id="control" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6>Initiate Call</h6>
+                                        <form id="initiateCallForm">
+                                            <div class="mb-3">
+                                                <label for="fromNumber" class="form-label">From</label>
+                                                <input type="text" class="form-control bg-dark text-light border-secondary" id="fromNumber" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="toNumber" class="form-label">To</label>
+                                                <input type="text" class="form-control bg-dark text-light border-secondary" id="toNumber" required>
+                                            </div>
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="bi bi-telephone-plus"></i> Initiate Call
+                                            </button>
+                                        </form>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6>Create Call File</h6>
+                                        <form id="createCallFileForm">
+                                            <div class="mb-3">
+                                                <label for="channel" class="form-label">Channel</label>
+                                                <input type="text" class="form-control bg-dark text-light border-secondary" id="channel" placeholder="SIP/1001" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="context" class="form-label">Context</label>
+                                                <input type="text" class="form-control bg-dark text-light border-secondary" id="context" placeholder="default" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="extension" class="form-label">Extension</label>
+                                                <input type="text" class="form-control bg-dark text-light border-secondary" id="extension" placeholder="1002" required>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="bi bi-file-plus"></i> Create Call File
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Real-time Events Tab -->
+                            <div class="tab-pane fade" id="logs" role="tabpanel">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6>Real-time Events</h6>
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="clearEvents()">
+                                        <i class="bi bi-trash"></i> Clear
+                                    </button>
+                                </div>
+                                <div id="eventLog" class="event-log">
+                                    <div class="text-muted">Waiting for events...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/dashboard.js"></script>
+</body>
+</html>

@@ -4,3 +4,9 @@ node_modules
 
 /generated/prisma
 admin-panel/
+
+# Business sensitive documents
+docs/business-plan.md
+docs/*business*
+docs/*confidential*
+docs/*private*

@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>After Dark Systems - Ecosystem Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: white;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #00f5ff, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav a {
+            color: #ccc;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .nav a:hover {
+            color: #00f5ff;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .dashboard-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .dashboard-title h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #00f5ff, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #ccc;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0,245,255,0.3);
+        }
+
+        .stat-value {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, #00f5ff, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: #ccc;
+            margin-bottom: 1rem;
+        }
+
+        .stat-description {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        .platforms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .platform-card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .platform-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(0,245,255,0.3);
+        }
+
+        .platform-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .platform-icon {
+            font-size: 2rem;
+        }
+
+        .platform-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .platform-status {
+            background: #00ff00;
+            color: #000;
+            padding: 0.25rem 0.5rem;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            margin-left: auto;
+        }
+
+        .platform-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .metric {
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #00f5ff;
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            color: #ccc;
+        }
+
+        .revenue-section {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .revenue-title {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            background: linear-gradient(45deg, #00ff00, #ffff00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .revenue-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .revenue-item {
+            background: rgba(0,0,0,0.3);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #00ff00;
+        }
+
+        .revenue-amount {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00ff00;
+            margin-bottom: 0.5rem;
+        }
+
+        .api-section {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 2rem;
+        }
+
+        .api-title {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            background: linear-gradient(45deg, #ff00ff, #00f5ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .api-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .api-item {
+            background: rgba(0,0,0,0.3);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #ff00ff;
+        }
+
+        .api-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .api-price {
+            font-size: 1.5rem;
+            color: #00ff00;
+            margin-bottom: 0.5rem;
+        }
+
+        .api-description {
+            color: #ccc;
+            font-size: 0.9rem;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .dashboard-title h1 {
+                font-size: 2rem;
+            }
+            
+            .stats-grid,
+            .platforms-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">🌙 After Dark Systems</div>
+        <nav class="nav">
+            <a href="index.html">Home</a>
+            <a href="products.html">Products</a>
+            <a href="ecosystem-dashboard.html">Ecosystem</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="dashboard-title">
+            <h1>🚀 Entertainment Technology Ecosystem</h1>
+            <p class="subtitle">The world's first comprehensive entertainment infrastructure platform</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">15+</div>
+                <div class="stat-label">Live Platforms</div>
+                <div class="stat-description">Production-ready entertainment platforms serving global audiences</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-value">$100M+</div>
+                <div class="stat-label">Estimated Valuation</div>
+                <div class="stat-description">Conservative estimate based on market analysis and revenue potential</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-value">24/7</div>
+                <div class="stat-label">Global Operations</div>
+                <div class="stat-description">Always "After Dark" somewhere - continuous worldwide service</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-value">$5M+</div>
+                <div class="stat-label">API Revenue Potential</div>
+                <div class="stat-description">Annual revenue projection from unified API gateway</div>
+            </div>
+        </div>
+
+        <div class="platforms-grid">
+            <div class="platform-card">
+                <div class="platform-header">
+                    <div class="platform-icon">🏪</div>
+                    <div class="platform-name">SmokeoutNYC</div>
+                    <div class="platform-status">LIVE</div>
+                </div>
+                <p>Cannabis industry gaming & AI risk platform</p>
+                <div class="platform-metrics">
+                    <div class="metric">
+                        <div class="metric-value">$97B</div>
+                        <div class="metric-label">Market Size</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">Gaming</div>
+                        <div class="metric-label">Type</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">High</div>
+                        <div class="metric-label">Revenue</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="platform-card">
+                <div class="platform-header">
+                    <div class="platform-icon">🛡️</div>
+                    <div class="platform-name">VeriBits.com</div>
+                    <div class="platform-status">LIVE</div>
+                </div>
+                <p>Enterprise trust verification & authentication</p>
+                <div class="platform-metrics">
+                    <div class="metric">
+                        <div class="metric-value">$10B</div>
+                        <div class="metric-label">Market Size</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">B2B</div>
+                        <div class="metric-label">Type</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">High</div>
+                        <div class="metric-label">Revenue</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="platform-card">
+                <div class="platform-header">
+                    <div class="platform-icon">🗳️</div>
+                    <div class="platform-name">PoliticalMemes.xyz</div>
+                    <div class="platform-status">LIVE</div>
+                </div>
+                <p>AI-powered political engagement platform</p>
+                <div class="platform-metrics">
+                    <div class="metric">
+                        <div class="metric-value">$1B</div>
+                        <div class="metric-label">Market Size</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">Political</div>
+                        <div class="metric-label">Type</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">Med</div>
+                        <div class="metric-label">Revenue</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="platform-card">
+                <div class="platform-header">
+                    <div class="platform-icon">🔮</div>
+                    <div class="platform-name">9Lives.xyz</div>
+                    <div class="platform-status">LIVE</div>
+                </div>
+                <p>Crypto risk management and scam protection</p>
+                <div class="platform-metrics">
+                    <div class="metric">
+                        <div class="metric-value">$1T</div>
+                        <div class="metric-label">Market Size</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">Crypto</div>
+                        <div class="metric-label">Type</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">High</div>
+                        <div class="metric-label">Revenue</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="platform-card">
+                <div class="platform-header">
+                    <div class="platform-icon">💕</div>
+                    <div class="platform-name">NerdyCupid.com</div>
+                    <div class="platform-status">LIVE</div>
+                </div>
+                <p>Scientific dating API platform</p>
+                <div class="platform-metrics">
+                    <div class="metric">
+                        <div class="metric-value">$3B</div>
+                        <div class="metric-label">Market Size</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">Dating</div>
+                        <div class="metric-label">Type</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">High</div>
+                        <div class="metric-label">Revenue</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="platform-card">
+                <div class="platform-header">
+                    <div class="platform-icon">🏢</div>
+                    <div class="platform-name">AEIMS</div>
+                    <div class="platform-status">LIVE</div>
+                </div>
+                <p>Large-scale adult entertainment platform</p>
+                <div class="platform-metrics">
+                    <div class="metric">
+                        <div class="metric-value">$97B</div>
+                        <div class="metric-label">Market Size</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">Adult</div>
+                        <div class="metric-label">Type</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">Very High</div>
+                        <div class="metric-label">Revenue</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="revenue-section">
+            <h2 class="revenue-title">💰 Revenue Projections</h2>
+            <div class="revenue-grid">
+                <div class="revenue-item">
+                    <div class="revenue-amount">$10M - $50M</div>
+                    <div>Conservative Valuation</div>
+                    <p>Based on current operations and moderate growth projections</p>
+                </div>
+                
+                <div class="revenue-item">
+                    <div class="revenue-amount">$25M - $100M</div>
+                    <div>Growth Scenario</div>
+                    <p>With user scaling and market expansion across platforms</p>
+                </div>
+                
+                <div class="revenue-item">
+                    <div class="revenue-amount">$50M - $300M</div>
+                    <div>Strategic Value</div>
+                    <p>Acquisition value for major entertainment/tech companies</p>
+                </div>
+                
+                <div class="revenue-item">
+                    <div class="revenue-amount">$500K - $5M</div>
+                    <div>Annual API Revenue</div>
+                    <p>Projected revenue from unified API gateway services</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="api-section">
+            <h2 class="api-title">🔌 Monetized API Services</h2>
+            <div class="api-grid">
+                <div class="api-item">
+                    <div class="api-name">Dating Safety</div>
+                    <div class="api-price">$0.50/lookup</div>
+                    <div class="api-description">Safety verification from Undateable.me platform</div>
+                </div>
+                
+                <div class="api-item">
+                    <div class="api-name">Crypto Risk Assessment</div>
+                    <div class="api-price">$1.00/check</div>
+                    <div class="api-description">AI-powered risk analysis from 9Lives.xyz</div>
+                </div>
+                
+                <div class="api-item">
+                    <div class="api-name">Trust Verification</div>
+                    <div class="api-price">$0.75/verify</div>
+                    <div class="api-description">File/email verification from VeriBits.com</div>
+                </div>
+                
+                <div class="api-item">
+                    <div class="api-name">Political Sentiment</div>
+                    <div class="api-price">$0.25/query</div>
+                    <div class="api-description">Real-time sentiment from PoliticalMemes.xyz</div>
+                </div>
+                
+                <div class="api-item">
+                    <div class="api-name">Scientific Matching</div>
+                    <div class="api-price">$0.20/match</div>
+                    <div class="api-description">Personality matching from NerdyCupid.com</div>
+                </div>
+                
+                <div class="api-item">
+                    <div class="api-name">Authentication Service</div>
+                    <div class="api-price">$0.01/auth</div>
+                    <div class="api-description">Cross-platform SSO authentication</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 After Dark Systems. Entertainment Technology Ecosystem.</p>
+        <p>Transforming entertainment infrastructure, one platform at a time.</p>
+    </footer>
+
+    <script>
+        // Add some interactive elements
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate stat values on page load
+            const statValues = document.querySelectorAll('.stat-value');
+            statValues.forEach(stat => {
+                const finalValue = stat.textContent;
+                stat.textContent = '0';
+                
+                setTimeout(() => {
+                    if (finalValue.includes('$')) {
+                        // Animate money values
+                        let current = 0;
+                        const target = parseInt(finalValue.replace(/\D/g, ''));
+                        const increment = target / 50;
+                        
+                        const timer = setInterval(() => {
+                            current += increment;
+                            if (current >= target) {
+                                stat.textContent = finalValue;
+                                clearInterval(timer);
+                            } else {
+                                stat.textContent = finalValue.replace(/\d+/, Math.floor(current));
+                            }
+                        }, 30);
+                    } else {
+                        // For other values, just animate in
+                        stat.style.opacity = '0';
+                        stat.textContent = finalValue;
+                        stat.style.transition = 'opacity 1s';
+                        setTimeout(() => stat.style.opacity = '1', 100);
+                    }
+                }, Math.random() * 1000);
+            });
+
+            // Add hover effects to platform cards
+            const platformCards = document.querySelectorAll('.platform-card');
+            platformCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.boxShadow = '0 10px 30px rgba(0,245,255,0.3)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.boxShadow = 'none';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

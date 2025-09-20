@@ -1,17 +1,56 @@
-# AfterDark Systems Platform
+# After Dark Systems Platform Documentation
 
-A secure, enterprise-grade web platform for managing entertainment systems with comprehensive admin capabilities.
+A comprehensive entertainment technology ecosystem with enterprise infrastructure, API gateway, gaming platforms, and battle-tested security.
 
-## 🏗️ Architecture
+## 🏗️ Architecture Overview
 
 ```
 afterdarksys.com/
 ├── admin-panel/          # Next.js admin dashboard
-├── docs/                # Documentation
-├── prisma/              # Database schema
-├── *.html               # Public website pages
-└── styles.css           # Global styles
+├── terraform/            # Infrastructure as Code (AWS ECS, ALB, Route 53)
+├── ansible/              # Configuration management and deployment
+├── api-demo.js           # API Gateway revenue engine ($500K-$5M annually)
+├── subdomains/           # 11+ specialized subdomain configurations
+├── docs/                 # Comprehensive documentation
+├── prisma/               # Database schema and migrations
+├── *.html                # Corporate website pages
+└── DEPLOYMENT.md         # Enterprise deployment guide
 ```
+
+## 🚀 Enterprise Infrastructure
+
+### Multi-Subdomain Architecture
+- `api.afterdarksys.com` - **API Gateway** (Revenue Engine)
+- `login.afterdarksys.com` - Central SSO for 15+ platforms
+- `admin.afterdarksys.com` - Master control panel
+- `billing.afterdarksys.com` - Payment processing hub
+- `analytics.afterdarksys.com` - Business intelligence dashboard
+- Additional specialized subdomains for telephony, webhooks, CDN, etc.
+
+### Cloud Infrastructure (Terraform)
+- **ECS Fargate** - Container orchestration with auto-scaling
+- **Application Load Balancer** - SSL termination and subdomain routing
+- **Route 53** - DNS management for all subdomains
+- **CloudWatch** - Centralized logging and monitoring
+- **Multi-AZ deployment** - High availability and fault tolerance
+
+## 💰 API Gateway & Revenue Engine
+
+### Revenue Potential: $500K - $5M+ Annually
+- **Pay-per-use pricing** with enterprise subscription tiers
+- **15+ platform integrations** with unified API access
+- **Enterprise-grade security** and rate limiting
+- **"The Stripe for Entertainment"** positioning
+
+### Available API Services
+- Dating Safety API ($0.50/call) - Undateable.me
+- Political Sentiment API ($0.25/call) - PoliticalMemes.xyz
+- Crypto Risk Assessment ($1.00/call) - 9Lives.xyz
+- Trust Verification ($0.75/call) - VeriBits.com
+- Job Market Data ($0.30/call) - OutOfWork.life
+- Cannabis Data API ($0.40/call) - SmokeOut.NYC
+- Scientific Dating API ($0.20/call) - NerdyCupid.com
+- SMS Communication API ($0.05/call) - NiteText
 
 ## 🚀 Quick Start
 

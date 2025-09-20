@@ -1,0 +1,110 @@
+---
+# ECS Service Management Tasks
+# Updates ECS services with new task definitions
+
+- name: "Get current task definition for {{ service.name }}"
+  ecs_taskdefinition_info:
+    task_definition: "{{ project_name }}-{{ service.name }}"
+    region: "{{ aws_region }}"
+  register: current_task_def
+  ignore_errors: true
+  
+- name: "Update ECS task definition for {{ service.name }}"
+  ecs_taskdefinition:
+    family: "{{ project_name }}-{{ service.name }}"
+    region: "{{ aws_region }}"
+    network_mode: awsvpc
+    launch_type: FARGATE
+    cpu: "{{ service.cpu }}"
+    memory: "{{ service.memory }}"
+    execution_role_arn: "{{ tf_outputs.ecs_execution_role_arn.value | default('') }}"
+    containers:
+      - name: "{{ service.name }}"
+        image: "{{ service.image }}"
+        essential: true
+        portMappings:
+          - containerPort: "{{ service.port }}"
+            protocol: tcp
+        environment: "{{ service.env_vars | default({}) | dict2items | map(attribute='key') | zip(service.env_vars | default({}) | dict2items | map(attribute='value')) | map('join', '=') | list if service.env_vars is defined else [] }}"
+        logConfiguration:
+          logDriver: awslogs
+          options:
+            awslogs-group: "/ecs/{{ project_name }}/{{ service.name }}"
+            awslogs-region: "{{ aws_region }}"
+            awslogs-stream-prefix: ecs
+        healthCheck:
+          command:
+            - CMD-SHELL
+            - "curl -f http://localhost:{{ service.port }}{{ service.health_path }} || exit 1"
+          interval: 30
+          timeout: 5
+          retries: 3
+          startPeriod: 60
+    state: present
+  register: task_definition_result
+  
+- name: "Update ECS service for {{ service.name }}"
+  ecs_service:
+    name: "{{ project_name }}-{{ service.name }}"
+    cluster: "{{ tf_outputs.ecs_cluster_name.value }}"
+    region: "{{ aws_region }}"
+    task_definition: "{{ task_definition_result.taskdefinition.taskDefinitionArn }}"
+    desired_count: "{{ ecs_desired_count }}"
+    launch_type: FARGATE
+    network_configuration:
+      subnets: "{{ tf_outputs.private_subnet_ids.value }}"
+      security_groups:
+        - "{{ tf_outputs.security_groups.value.ecs }}"
+      assign_public_ip: false
+    load_balancers:
+      - targetGroupArn: "{{ tf_outputs.target_groups.value[service.name | replace('-', '_')] }}"
+        containerName: "{{ service.name }}"
+        containerPort: "{{ service.port }}"
+    deployment_configuration:
+      maximum_percent: 200
+      minimum_healthy_percent: 50
+      deployment_circuit_breaker:
+        enable: true
+        rollback: true
+    enable_execute_command: true
+    state: present
+    wait: true
+    wait_timeout: 900
+  register: service_result
+  
+- name: "Display service update result for {{ service.name }}"
+  debug:
+    msg: |
+      Service {{ service.name }} update result:
+      - Status: {{ service_result.service.status }}
+      - Running Count: {{ service_result.service.runningCount }}
+      - Pending Count: {{ service_result.service.pendingCount }}
+      - Task Definition: {{ service_result.service.taskDefinition }}
+      
+- name: "Configure auto scaling for {{ service.name }}"
+  aws_application_autoscaling_target:
+    service_namespace: ecs
+    resource_id: "service/{{ tf_outputs.ecs_cluster_name.value }}/{{ project_name }}-{{ service.name }}"
+    scalable_dimension: "ecs:service:DesiredCount"
+    min_capacity: "{{ ecs_min_capacity }}"
+    max_capacity: "{{ ecs_max_capacity }}"
+    region: "{{ aws_region }}"
+    state: present
+  when: enable_auto_scaling | default(true) | bool
+  
+- name: "Configure CPU-based auto scaling policy for {{ service.name }}"
+  aws_application_autoscaling_policy:
+    service_namespace: ecs
+    resource_id: "service/{{ tf_outputs.ecs_cluster_name.value }}/{{ project_name }}-{{ service.name }}"
+    scalable_dimension: "ecs:service:DesiredCount"
+    policy_name: "{{ project_name }}-{{ service.name }}-cpu-scaling"
+    policy_type: TargetTrackingScaling
+    target_tracking_scaling_policy_configuration:
+      target_value: 70.0
+      predefined_metric_specification:
+        predefined_metric_type: ECSServiceAverageCPUUtilization
+      scale_out_cooldown: 300
+      scale_in_cooldown: 300
+    region: "{{ aws_region }}"
+    state: present
+  when: enable_auto_scaling | default(true) | bool

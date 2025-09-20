@@ -1,0 +1,62 @@
+# After Dark Systems - Terraform Variables
+# Copy this file to terraform.tfvars and configure for your environment
+
+# AWS Configuration
+aws_region = "us-east-1"
+
+# Project Configuration
+project_name = "afterdarksys"
+environment  = "production"
+domain_name  = "afterdarksys.com"
+
+# Network Configuration
+vpc_cidr           = "10.0.0.0/16"
+availability_zones = 2
+
+# ECS Configuration
+ecs_desired_count = 2
+ecs_min_capacity  = 1
+ecs_max_capacity  = 10
+
+# Application Resource Allocation
+main_site_cpu    = 256
+main_site_memory = 512
+
+login_service_cpu    = 256
+login_service_memory = 512
+
+api_gateway_cpu    = 512
+api_gateway_memory = 1024
+
+# Container Images
+main_site_image     = "nginx:alpine"
+login_service_image = "afterdarksys/login-service:latest"
+api_gateway_image   = "afterdarksys/api-gateway:latest"
+
+# Database Configuration (for future RDS deployment)
+db_instance_class     = "db.t3.micro"
+db_allocated_storage  = 20
+db_engine_version     = "8.0"
+
+# Monitoring and Alerting
+enable_cloudwatch_insights = true
+log_retention_days         = 7
+
+# Auto Scaling Targets
+cpu_target_value    = 70
+memory_target_value = 80
+
+# Security Configuration
+ssl_policy                       = "ELBSecurityPolicy-TLS-1-2-2017-01"
+certificate_transparency_logging = true
+
+# Resource Tags
+additional_tags = {
+  Owner       = "AfterDarkSystems"
+  ManagedBy   = "SuperDeploy"
+  CostCenter  = "Infrastructure"
+  Project     = "EntertainmentEcosystem"
+  BusinessUnit = "EntertainmentTechnology"
+  Valuation   = "100M+"
+  Platforms   = "15+"
+}

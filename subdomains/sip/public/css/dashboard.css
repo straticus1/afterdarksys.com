@@ -1,0 +1,267 @@
+/* After Dark Systems SIP Gateway Dashboard Styles */
+
+:root {
+    --ads-dark: #1a1a1a;
+    --ads-darker: #0d0d0d;
+    --ads-primary: #6f42c1;
+    --ads-secondary: #6c757d;
+    --ads-success: #198754;
+    --ads-warning: #ffc107;
+    --ads-danger: #dc3545;
+    --ads-info: #0dcaf0;
+    --ads-light: #f8f9fa;
+    --ads-accent: #ff6b35;
+}
+
+body {
+    background: linear-gradient(135deg, var(--ads-darker) 0%, var(--ads-dark) 100%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+}
+
+/* Navigation */
+.navbar-brand {
+    font-weight: 600;
+    color: var(--ads-accent) !important;
+}
+
+.navbar-brand i {
+    color: var(--ads-primary);
+    margin-right: 8px;
+}
+
+/* Cards */
+.card {
+    backdrop-filter: blur(10px);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(111, 66, 193, 0.15);
+}
+
+.card-header {
+    background: rgba(13, 13, 13, 0.8);
+}
+
+/* Tabs */
+.nav-tabs .nav-link {
+    color: var(--ads-light) !important;
+    border-color: var(--ads-secondary);
+}
+
+.nav-tabs .nav-link.active {
+    background-color: var(--ads-primary) !important;
+    border-color: var(--ads-primary);
+    color: white !important;
+}
+
+.nav-tabs .nav-link:hover {
+    background-color: rgba(111, 66, 193, 0.2);
+    border-color: var(--ads-secondary);
+}
+
+/* Tables */
+.table-dark {
+    --bs-table-bg: transparent;
+}
+
+.table-dark th {
+    border-color: var(--ads-secondary);
+    background-color: rgba(111, 66, 193, 0.1);
+}
+
+/* Forms */
+.form-control:focus {
+    border-color: var(--ads-primary);
+    box-shadow: 0 0 0 0.25rem rgba(111, 66, 193, 0.25);
+}
+
+.btn-primary {
+    background-color: var(--ads-primary);
+    border-color: var(--ads-primary);
+}
+
+.btn-primary:hover {
+    background-color: #5a359a;
+    border-color: #5a359a;
+}
+
+/* Event Log */
+.event-log {
+    max-height: 400px;
+    overflow-y: auto;
+    background: rgba(13, 13, 13, 0.5);
+    border: 1px solid var(--ads-secondary);
+    border-radius: 0.375rem;
+    padding: 1rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+}
+
+.event-item {
+    border-bottom: 1px solid rgba(108, 117, 125, 0.2);
+    padding: 0.5rem 0;
+    margin-bottom: 0.5rem;
+}
+
+.event-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.event-timestamp {
+    color: var(--ads-secondary);
+    font-size: 0.75rem;
+}
+
+.event-type {
+    font-weight: 600;
+    margin-right: 0.5rem;
+}
+
+.event-type.call-started { color: var(--ads-success); }
+.event-type.call-ended { color: var(--ads-danger); }
+.event-type.call-transferred { color: var(--ads-warning); }
+.event-type.system { color: var(--ads-info); }
+
+/* Status Indicators */
+.status-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+}
+
+.status-healthy { background-color: var(--ads-success); }
+.status-warning { background-color: var(--ads-warning); }
+.status-error { background-color: var(--ads-danger); }
+.status-unknown { background-color: var(--ads-secondary); }
+
+/* Action Buttons */
+.btn-sm.btn-outline-secondary {
+    border-color: var(--ads-secondary);
+    color: var(--ads-light);
+}
+
+.btn-sm.btn-outline-secondary:hover {
+    background-color: var(--ads-secondary);
+    border-color: var(--ads-secondary);
+    color: white;
+}
+
+.btn-sm.btn-outline-danger {
+    border-color: var(--ads-danger);
+    color: var(--ads-danger);
+}
+
+.btn-sm.btn-outline-danger:hover {
+    background-color: var(--ads-danger);
+    border-color: var(--ads-danger);
+    color: white;
+}
+
+/* Animations */
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+/* Loading States */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Scrollbar Styling */
+.event-log::-webkit-scrollbar {
+    width: 8px;
+}
+
+.event-log::-webkit-scrollbar-track {
+    background: rgba(13, 13, 13, 0.2);
+    border-radius: 4px;
+}
+
+.event-log::-webkit-scrollbar-thumb {
+    background: var(--ads-secondary);
+    border-radius: 4px;
+}
+
+.event-log::-webkit-scrollbar-thumb:hover {
+    background: var(--ads-primary);
+}
+
+/* Modal Customizations */
+.modal-content {
+    backdrop-filter: blur(10px);
+}
+
+.modal-header {
+    background: rgba(111, 66, 193, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .card-body h3 {
+        font-size: 1.5rem;
+    }
+    
+    .event-log {
+        max-height: 300px;
+        font-size: 0.75rem;
+    }
+    
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+}
+
+/* Dark theme for dropdowns */
+.dropdown-menu {
+    background-color: var(--ads-dark) !important;
+    border-color: var(--ads-secondary) !important;
+}
+
+.dropdown-item {
+    color: var(--ads-light) !important;
+}
+
+.dropdown-item:hover {
+    background-color: var(--ads-primary) !important;
+    color: white !important;
+}
+
+/* Connection status indicator */
+.connection-status {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    z-index: 1050;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+}
+
+.connection-status.connected {
+    background-color: rgba(25, 135, 84, 0.9);
+    color: white;
+}
+
+.connection-status.disconnected {
+    background-color: rgba(220, 53, 69, 0.9);
+    color: white;
+}
+
+.connection-status.connecting {
+    background-color: rgba(255, 193, 7, 0.9);
+    color: black;
+}
