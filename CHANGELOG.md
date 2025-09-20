@@ -196,6 +196,89 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Revenue Transparency** - Clear pricing and value proposition
 - **Enterprise Contact Points** - Dedicated enterprise sales channels
 
+## [1.2.0] - 2025-09-20
+
+### 🚀 AEIMS v3.0.1 Integration - Advanced Domain Management
+- **Comprehensive Domain Management API** - Full CRUD operations with automatic nginx configuration
+  - RESTful API endpoints for domain management
+  - Automatic nginx virtual host generation and management
+  - SSL certificate automation (Let's Encrypt + self-signed)
+  - Real-time domain status monitoring
+  - Automated configuration validation and rollback
+- **Multi-Domain Architecture Support** - Complete support for all 12 AEIMS domains
+  - `sexacomms.com` - Premium adult entertainment platform
+  - `flirts.nyc` - NYC-focused dating platform
+  - `nycflirts.com` - New York dating community
+  - `nitetext.com` - Communication platform
+  - `nitetex.com` - Alternative communication platform
+  - `beastybitches.com` - Specialized adult platform
+  - `latenite.love` - Late-night social platform
+  - `dommecats.com` - Niche adult community
+  - `fantasyflirts.live` - Fantasy-based social platform
+  - `holyflirts.com` - Religious-themed dating
+  - `cavern.love` - Cave-themed social platform
+  - `cavernof.love` - Extended cave community
+- **Enterprise-Grade Infrastructure Management**
+  - Route53 → ELB → ECS → nginx virtual hosts → PHP application flow
+  - Automatic nginx configuration generation for each domain
+  - SSL certificate management with automated renewal
+  - Domain-specific PHP application routing via FastCGI parameters
+  - Development and staging environment mappings
+
+### 🛠️ Admin Panel Enhancements
+- **AEIMS Client Integration** (`subdomains/admin/lib/aeims-client.js`)
+  - Updated for v3.0.1 API compatibility
+  - New domain status monitoring capabilities
+  - Domain toggle functionality (active/inactive)
+  - Enhanced error handling and response formatting
+- **Dashboard Updates** (`subdomains/admin/public/index.html`)
+  - Real-time display of all 12 AEIMS domains
+  - Active/inactive status indicators
+  - v3.0.1 version notification in platform portfolio
+  - Improved domain testing functionality
+  - Enhanced response parsing for new API structure
+
+### 🌐 API Gateway Enhancements
+- **Domain Management Endpoints**
+  - `GET /api/domains` - List all domains with status
+  - `GET /api/domains/{domain}` - Get specific domain details
+  - `POST /api/domains` - Add new domain with automatic configuration
+  - `PUT /api/domains/{domain}` - Update domain configuration
+  - `DELETE /api/domains/{domain}` - Remove domain and cleanup
+  - `POST /api/domains/{domain}/toggle` - Toggle domain active status
+  - `POST /api/domains/reload-nginx` - Reload nginx configuration
+  - `GET /api/domains/nginx-status` - Get nginx status information
+
+### 🔧 Infrastructure Automation
+- **Nginx Management Service** - Automated web server configuration
+  - Dynamic virtual host generation from domain configurations
+  - SSL certificate automation with Let's Encrypt integration
+  - Configuration validation and safe rollback mechanisms
+  - Multi-site template system with security headers
+- **SSL Certificate Manager** - Complete certificate lifecycle management
+  - Automatic Let's Encrypt certificate requests for production
+  - Self-signed certificate generation for development
+  - Certificate renewal automation and expiration monitoring
+  - Domain ownership validation for certificate requests
+- **CLI Domain Management** - Command-line interface for domain operations
+  - `aeims domain list` - List all configured domains
+  - `aeims domain add <domain>` - Add new domain with full configuration
+  - `aeims domain show <domain>` - Display detailed domain information
+  - `aeims domain toggle <domain>` - Toggle domain active status
+  - `aeims domain nginx status` - Check nginx configuration status
+
+### 📊 Business Value Enhancements
+- **Multi-Domain Revenue Optimization** - 12 active domains generating revenue
+- **Enterprise Infrastructure** - Production-ready domain management at scale
+- **Operational Efficiency** - Automated domain deployment and management
+- **Platform Reliability** - Zero-downtime domain configuration changes
+
+### 🛡️ Security & Compliance
+- **Automated SSL Management** - All domains secured with automatic certificate renewal
+- **Configuration Validation** - Safe deployment with automatic rollback on errors
+- **Domain-Specific Security** - Tailored security headers per domain
+- **Enterprise-Grade Monitoring** - Real-time status monitoring for all domains
+
 ## [Unreleased]
 
 ### Planned Features

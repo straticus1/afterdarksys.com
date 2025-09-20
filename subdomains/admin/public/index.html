@@ -249,6 +249,9 @@
                 <div class="card-title">📊 Platform Portfolio</div>
                 <div class="metric-value" id="platformCount">8</div>
                 <div class="metric-label">Active Entertainment Platforms</div>
+                <div style="margin-top: 1rem; padding: 0.5rem; background: rgba(255, 215, 0, 0.1); border-radius: 5px;">
+                    <small>🆕 AEIMS v3.0.1: <strong>12 domains</strong> with active/inactive control</small>
+                </div>
                 <div class="platform-list" id="platformList">
                     <!-- Platforms will be loaded here -->
                 </div>
@@ -419,7 +422,7 @@
         }
 
         async function testAEIMSDomains() {
-            console.log('Testing AEIMS domains endpoint...');
+            console.log('Testing AEIMS v3.0.1 domains endpoint...');
             
             // Try to get token from localStorage (from login)
             let token = localStorage.getItem('afterdark_token');
@@ -439,16 +442,31 @@
                 });
                 
                 const result = await response.json();
-                console.log('AEIMS Domains response:', result);
+                console.log('AEIMS v3.0.1 Domains response:', result);
                 
                 if (response.ok) {
-                    alert(`AEIMS Domains Test Successful!\n\nDomains found: ${JSON.stringify(result, null, 2)}`);
+                    // Handle new v3.0.1 response format
+                    let message = `AEIMS v3.0.1 Domains Test Successful!\n\n`;
+                    
+                    if (result.success && result.domains) {
+                        message += `Total Domains: ${result.total}\n`;
+                        message += `Version: ${result.version}\n\n`;
+                        message += `Active Domains:\n`;
+                        
+                        Object.entries(result.domains).forEach(([key, domain]) => {
+                            message += `• ${domain.domain} (${domain.active ? 'Active' : 'Inactive'})\n`;
+                        });
+                    } else {
+                        message += `Raw Response: ${JSON.stringify(result, null, 2)}`;
+                    }
+                    
+                    alert(message);
                 } else {
-                    alert(`AEIMS Domains Test Failed!\n\nError: ${result.error || 'Unknown error'}\n\nThis is expected if AEIMS service is not running.`);
+                    alert(`AEIMS v3.0.1 Test Failed!\n\nError: ${result.error || 'Unknown error'}\n\nThis is expected if AEIMS service is not running.`);
                 }
             } catch (error) {
                 console.error('AEIMS test error:', error);
-                alert(`AEIMS Domains Test Error!\n\nError: ${error.message}\n\nCheck browser console for details.`);
+                alert(`AEIMS v3.0.1 Test Error!\n\nError: ${error.message}\n\nCheck browser console for details.`);
             }
         }
 

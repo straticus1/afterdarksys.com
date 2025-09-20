@@ -48,11 +48,39 @@ Our API Gateway provides unified access to 15+ entertainment platforms through a
 - **Cannabis Data** ($0.40/call) - Market data from SmokeOut.NYC
 - **Scientific Dating** ($0.20/call) - Matching algorithms from NerdyCupid.com
 - **SMS Communication** ($0.05/call) - Messaging via NiteText platform
+- **AEIMS Domain Management** ($2.00/call) - Enterprise domain automation API
+
+### 🌐 AEIMS Domain Management API
+**Enterprise-Grade Domain Automation & Infrastructure Management**
+
+**Key Features:**
+- **Automated nginx Configuration** - Dynamic virtual host generation
+- **SSL Certificate Management** - Let's Encrypt integration with auto-renewal
+- **Multi-Domain Support** - Manage 12+ domains from single API
+- **Real-time Status Monitoring** - Domain health and performance tracking
+- **Zero-Downtime Deployments** - Safe configuration changes with rollback
+
+**API Endpoints:**
+```
+GET    /api/domains              - List all domains ($2.00/call)
+GET    /api/domains/{domain}     - Get domain details ($2.00/call)
+POST   /api/domains              - Add new domain ($5.00/call)
+PUT    /api/domains/{domain}     - Update domain ($3.00/call)
+DELETE /api/domains/{domain}     - Remove domain ($3.00/call)
+POST   /api/domains/{domain}/toggle - Toggle status ($1.00/call)
+```
+
+**Revenue Model:**
+- **Pay-per-API-call** pricing for enterprise domain management
+- **Monthly subscriptions** for high-volume users ($200-2000/month)
+- **Custom enterprise plans** for infrastructure management
+- **Potential Revenue**: $50K-500K+ annually from domain management alone
 
 ### 🚀 "The Stripe for Entertainment"
 Positioning as the first comprehensive entertainment technology infrastructure provider:
 - **15+ live platforms** with battle-tested scale
 - **Cross-platform data services** and unified APIs
+- **Advanced domain management infrastructure** 
 - **No direct competitor** with this breadth of coverage
 - **$100M+ total addressable market** potential
 
@@ -125,8 +153,23 @@ afterdarksys.com/
 ## 💼 Services & Products
 
 ### 🎭 Entertainment Platform Operations
-- **AEIMS** - Large-scale adult entertainment platform
-- **NiteText** - Communication platform
+- **AEIMS v3.0.1** - Large-scale adult entertainment platform with advanced domain management
+  - **12 Active Domains** with automated nginx configuration:
+    - `sexacomms.com` - Premium adult entertainment platform
+    - `flirts.nyc` - NYC-focused dating platform
+    - `nycflirts.com` - New York dating community
+    - `nitetext.com` - Communication platform
+    - `nitetex.com` - Alternative communication platform
+    - `beastybitches.com` - Specialized adult platform
+    - `latenite.love` - Late-night social platform
+    - `dommecats.com` - Niche adult community
+    - `fantasyflirts.live` - Fantasy-based social platform
+    - `holyflirts.com` - Religious-themed dating
+    - `cavern.love` - Cave-themed social platform
+    - `cavernof.love` - Extended cave community
+  - **Enterprise Infrastructure**: Route53 → ELB → ECS → nginx → PHP
+  - **Automated SSL Management** with Let's Encrypt integration
+  - **Real-time Domain Control** via API and admin dashboard
 - **Money Paws** - Cryptocurrency pet gaming platform
 - **Purrr.love** - Cat-themed MegaVerse and virtual universe
 - **Additional cryptocurrency gaming platforms**
